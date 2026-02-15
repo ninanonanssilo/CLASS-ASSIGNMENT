@@ -40,7 +40,7 @@
     .brand b{letter-spacing:.12em; font-size:12px; color:var(--muted)}
     .brand h1{margin:0; font-size:22px}
 
-    /* 3-line category navigation (cross-site links) */
+    /* Category navigation (desktop boxes, mobile hamburger) */
     .catnav{
       display:flex;
       flex-direction:column;
@@ -48,10 +48,62 @@
       align-items:stretch;
       min-width: 280px;
       max-width: 360px;
+      position:relative;
+    }
+    .catToggle{
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.75);
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+      cursor:pointer;
+      font-weight:800;
+    }
+    .catToggle .meta{font-weight:600; color:var(--muted); font-size:12px}
+    .catToggle:focus, .catToggle:hover{
+      border-color: rgba(167,139,250,.55);
+      box-shadow: 0 0 0 4px rgba(167,139,250,.14), 0 10px 25px rgba(15, 23, 42, .08);
+      outline:none;
+    }
+    .hamburger{
+      width:18px; height:14px; position:relative; flex:0 0 auto;
+    }
+    .hamburger i{
+      position:absolute; left:0; right:0; height:2px; border-radius:2px;
+      background: rgba(15,23,42,.75);
+    }
+    .hamburger i:nth-child(1){top:0}
+    .hamburger i:nth-child(2){top:6px}
+    .hamburger i:nth-child(3){top:12px}
+    .catMenu{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
     }
     @media (max-width: 980px){
       .topbar{align-items:flex-start; flex-direction:column;}
       .catnav{min-width:unset; width:100%;}
+      .catToggle{display:flex;}
+      .catMenu{
+        display:none;
+        position:absolute;
+        top:52px;
+        left:0;
+        right:0;
+        padding:10px;
+        background: rgba(255,255,255,.92);
+        border:1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        z-index: 60;
+      }
+      .catnav.open .catMenu{display:flex;}
     }
     .cat{
       display:flex;
@@ -248,6 +300,77 @@
     }
     tr:last-child td{border-bottom:none}
 
+    /* Excel-like input grid */
+    .sheet table{width:100%; border-collapse:separate; border-spacing:0; font-size:12px}
+    .sheet th, .sheet td{padding:8px 8px; border-bottom:1px solid var(--line); vertical-align:middle}
+    .sheet th{
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(241,245,249,.92);
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+    }
+    .sheet td{background:#fff}
+    .sheet tr:last-child td{border-bottom:none}
+    .sheet .cellInput{
+      width: 100%;
+      min-height: 36px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      outline: none;
+    }
+    .sheet .cellInput:focus{
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 4px rgba(167,139,250,.14);
+    }
+    .sheet .idcell{color:var(--muted)}
+    .sheet .numcell{color:var(--muted); text-align:right; width:56px}
+    .sheet .checkcell{display:flex; align-items:center; justify-content:center}
+
+    /* Compact sheet + multi-select dropdown (trait picker) */
+    .sheetWrap{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff}
+    .sheetHead{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      padding:10px 12px; background:rgba(241,245,249,.6); border-bottom:1px solid var(--line);
+    }
+    .sheetHead .hint{margin:0}
+    table.sheet{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    table.sheet th, table.sheet td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle}
+    table.sheet th{background:rgba(241,245,249,.55); color:var(--muted); font-weight:700}
+    table.sheet td input, table.sheet td select{
+      width:100%;
+      min-height:40px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      outline:none;
+    }
+    table.sheet td input:focus, table.sheet td select:focus{
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 4px rgba(167,139,250,.14);
+    }
+    .smallBtn{padding:8px 10px; font-size:12px}
+    .badgeBox{display:flex; gap:6px; flex-wrap:wrap}
+    .badge{font-size:11px; padding:6px 8px; border-radius:999px; border:1px solid var(--line); background:rgba(233,213,255,.35)}
+    .pop{position:relative}
+    .popBtn{width:100%; text-align:left}
+    .popPanel{
+      position:absolute; z-index:50; top:42px; left:0; right:0;
+      border:1px solid var(--line); border-radius:14px; background:#fff;
+      box-shadow: var(--shadow); padding:10px;
+      max-height:220px; overflow:auto;
+      display:none;
+    }
+    .pop.open .popPanel{display:block}
+    .popItem{display:flex; align-items:center; gap:8px; padding:6px 4px}
+    .popItem input{width:auto; min-height:auto}
+
     .footer{
       margin-top:26px;
       padding:18px 0 26px;
@@ -283,20 +406,28 @@
         <h1>반편성 생성기</h1>
       </div>
 
-      <!-- 3-line category cross-site navigation -->
-      <nav class="catnav" aria-label="카테고리">
-        <a class="cat" href="https://school-letter.pages.dev/" target="_blank" rel="noopener">
-          <span class="name">가정통신문</span>
-          <span class="meta">school-letter.pages.dev</span>
-        </a>
-        <a class="cat" href="https://money-report.pages.dev/" target="_blank" rel="noopener">
-          <span class="name">금전·회계</span>
-          <span class="meta">money-report.pages.dev</span>
-        </a>
-        <a class="cat" href="https://educate1.pages.dev/" target="_blank" rel="noopener">
-          <span class="name">교육·평가</span>
-          <span class="meta">educate1.pages.dev</span>
-        </a>
+      <!-- Category cross-site navigation -->
+      <nav class="catnav" id="catnav" aria-label="카테고리">
+        <button type="button" class="catToggle" id="catToggle" aria-expanded="false" aria-controls="catMenu">
+          <span>카테고리</span>
+          <span class="meta">
+            <span class="hamburger" aria-hidden="true"><i></i><i></i><i></i></span>
+          </span>
+        </button>
+        <div class="catMenu" id="catMenu">
+          <a class="cat" href="https://school-letter.pages.dev/" target="_blank" rel="noopener">
+            <span class="name">가정통신문</span>
+            <span class="meta">school-letter.pages.dev</span>
+          </a>
+          <a class="cat" href="https://money-report.pages.dev/" target="_blank" rel="noopener">
+            <span class="name">품의생성기</span>
+            <span class="meta">money-report.pages.dev</span>
+          </a>
+          <a class="cat" href="https://educate1.pages.dev/" target="_blank" rel="noopener">
+            <span class="name">공문생성기</span>
+            <span class="meta">educate1.pages.dev</span>
+          </a>
+        </div>
       </nav>
     </div>
 
@@ -347,6 +478,7 @@
             <select id="inputType">
               <option value="single">전체 명렬표 1개로 입력</option>
               <option value="byClass">기존 반별로 입력(1반/2반/3반…)</option>
+              <option value="grid">엑셀 표로 입력(체크)</option>
             </select>
           </div>
           <div class="field" id="existingCountWrap" style="display:none;">
@@ -357,7 +489,31 @@
 
         <div id="byClassArea" style="display:none; margin-top:6px;"></div>
 
-        <div class="field">
+        <div id="gridWrap" style="display:none; margin-top:6px;">
+          <div class="hint" style="margin:0 0 10px;">
+            엑셀에서 표를 복사해 붙여넣을 수 있습니다. 기본 열 순서: <span class="mono">이름 · 성별 · 점수 · (특성들...)</span>
+            특성 칸은 <span class="mono">1/0</span>, <span class="mono">Y/N</span>, <span class="mono">TRUE/FALSE</span> 등으로 붙여넣으면 체크로 반영됩니다.
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>표 행 개수</label>
+              <input id="gridRows" type="number" min="1" max="400" value="40" />
+            </div>
+            <div class="field">
+              <label>표 도구</label>
+              <div class="btns" style="margin-top:0;">
+                <button type="button" id="btnGridAdd">행 +10</button>
+                <button type="button" id="btnGridClear">표 비우기</button>
+                <button type="button" class="ghost" id="btnGridImportRoster">명렬표 → 표</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="gridArea" class="sheet" style="overflow:auto; border:1px solid var(--line); border-radius:14px; background:#fff;"></div>
+        </div>
+
+        <div class="field" id="rosterWrap">
           <label>학생 명렬표 (줄바꿈으로 구분)</label>
           <textarea id="roster" placeholder="예:
 홍길동
@@ -394,10 +550,38 @@
         <div class="field">
           <label>특성 종류 (콤마로 나열)</label>
           <input id="traitNames" type="text" value="ADHD,기초학력,특수교육대상,상자,교우관계,사춘기" />
-          <div class="hint">아래 “특성별 학생 목록”에 이름만 붙여넣으면 체크처럼 반영됩니다.</div>
+          <div class="hint">아래 학생 표에서 각 학생의 특성을 드롭다운으로 선택합니다.</div>
         </div>
 
-        <div id="traitsArea"></div>
+        <div class="field">
+          <label>학생 표 (명렬표 옆에서 특성 입력)</label>
+          <div class="sheetWrap">
+            <div class="sheetHead">
+              <div class="hint">명렬표를 입력한 뒤 <b>표 생성/새로고침</b>을 누르고, 학생별로 성별/점수/특성을 지정하세요.</div>
+              <div class="btns" style="margin:0;">
+                <button type="button" class="smallBtn" id="btnBuildSheet">표 생성/새로고침</button>
+                <button type="button" class="smallBtn" id="btnClearSheet">표 비우기</button>
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table class="sheet">
+                <thead>
+                  <tr>
+                    <th style="width:60px;">번호</th>
+                    <th style="min-width:140px;">이름</th>
+                    <th style="width:90px;">성별</th>
+                    <th style="width:90px;">점수</th>
+                    <th style="min-width:240px;">특성(멀티선택)</th>
+                    <th style="min-width:140px;">형제그룹</th>
+                  </tr>
+                </thead>
+                <tbody id="sheetBody">
+                  <tr><td colspan="6" style="color:var(--muted);">명렬표를 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         <div class="field">
           <label>붙으면 안 되는 조합 (한 줄에 1쌍: “이름1 - 이름2”)</label>
@@ -482,6 +666,30 @@ const cleanLine = (s)=>String(s||"").trim();
 const splitLines = (t)=>String(t||"").split(/\r?\n/).map(cleanLine).filter(Boolean);
 const uniq = (arr)=>Array.from(new Set(arr));
 
+// Mobile hamburger: category menu
+const catnav = $("catnav");
+const catToggle = $("catToggle");
+if (catnav && catToggle){
+  function closeCatMenu(){
+    catnav.classList.remove("open");
+    catToggle.setAttribute("aria-expanded", "false");
+  }
+  function toggleCatMenu(){
+    const open = catnav.classList.toggle("open");
+    catToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  catToggle.addEventListener("click", toggleCatMenu);
+  document.addEventListener("click", (e)=>{
+    if (!catnav.contains(e.target)) closeCatMenu();
+  });
+  document.addEventListener("keydown", (e)=>{
+    if (e.key === "Escape") closeCatMenu();
+  });
+  for (const a of Array.from(catnav.querySelectorAll("a.cat"))){
+    a.addEventListener("click", closeCatMenu);
+  }
+}
+
 function buildByClassInputs(){
   const area = $("byClassArea");
   const n = Math.max(1, Math.min(20, parseInt($("existingCount")?.value || "1", 10)));
@@ -507,20 +715,281 @@ function readExistingClassRoster(){
   return all;
 }
 
-function syncInputTypeUI(){
-  const t = $("inputType")?.value || "single";
-  const show = (t === "byClass");
-  $("existingCountWrap").style.display = show ? "" : "none";
-  $("byClassArea").style.display = show ? "" : "none";
-  if (show) buildByClassInputs();
+function normalizeGenderToken(v){
+  const s = cleanLine(v);
+  if (!s) return "";
+  if (s==="남" || /^m(ale)?$/i.test(s)) return "남";
+  if (s==="여" || /^f(emale)?$/i.test(s)) return "여";
+  return "";
 }
 
-// UI toggle: single roster vs existing classes
+function truthyToken(v){
+  const s = cleanLine(v).toLowerCase();
+  if (!s) return false;
+  return ["1","y","yes","true","t","o","ㅇ","ok","v","check","checked","on"].includes(s);
+}
+
+function gridTraitNames(){
+  return splitLines($("traitNames").value.replace(/,/g,"\n"));
+}
+
+function gridSnapshot(){
+  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
+  return rows.map(tr=>{
+    const name = tr.querySelector('input[data-col="0"]')?.value || "";
+    const gender = tr.querySelector('select[data-col="1"]')?.value || "";
+    const score = tr.querySelector('input[data-col="2"]')?.value || "";
+    const traits = {};
+    for (const cb of Array.from(tr.querySelectorAll('input[type="checkbox"][data-trait]'))){
+      traits[cb.dataset.trait] = !!cb.checked;
+    }
+    return {name, gender, score, traits};
+  });
+}
+
+function recomputeGridIds(){
+  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
+  const parsedNames = rows.map(tr=>{
+    const raw = tr.querySelector('input[data-col="0"]')?.value || "";
+    const p = parseNameGender(raw);
+    return cleanLine(p.name);
+  });
+
+  // disambiguate only among non-empty names, preserve blank rows
+  const nonEmpty = [];
+  const idxMap = [];
+  for (let i=0;i<parsedNames.length;i++){
+    if (!parsedNames[i]) continue;
+    idxMap.push(i);
+    nonEmpty.push(parsedNames[i]);
+  }
+  const ids = disambiguateNames(nonEmpty);
+  for (let i=0;i<rows.length;i++){
+    const cell = rows[i].querySelector('[data-idcell]');
+    if (!cell) continue;
+    cell.textContent = "";
+  }
+  for (let j=0;j<idxMap.length;j++){
+    const i = idxMap[j];
+    const cell = rows[i].querySelector('[data-idcell]');
+    if (cell) cell.textContent = ids[j];
+  }
+}
+
+function buildGrid(opts){
+  const preserve = opts?.preserve !== false;
+  const snapshot = preserve ? gridSnapshot() : null;
+  const traits = gridTraitNames();
+  const n = Math.max(1, Math.min(400, parseInt($("gridRows")?.value || "40", 10)));
+
+  const area = $("gridArea");
+  area.innerHTML = "";
+
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const thr = document.createElement("tr");
+  const headers = ["번호","ID","이름","성별","점수", ...traits];
+  for (const h of headers){
+    const th = document.createElement("th");
+    th.textContent = h;
+    thr.appendChild(th);
+  }
+  thead.appendChild(thr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  for (let i=0;i<n;i++){
+    const tr = document.createElement("tr");
+    tr.dataset.gridRow = String(i);
+
+    const tdNum = document.createElement("td");
+    tdNum.className = "numcell";
+    tdNum.textContent = String(i+1);
+    tr.appendChild(tdNum);
+
+    const tdId = document.createElement("td");
+    tdId.className = "mono idcell";
+    tdId.innerHTML = `<span data-idcell></span>`;
+    tr.appendChild(tdId);
+
+    const tdName = document.createElement("td");
+    tdName.innerHTML = `<input class="cellInput" type="text" data-col="0" data-row="${i}" placeholder="이름" />`;
+    tr.appendChild(tdName);
+
+    const tdGender = document.createElement("td");
+    tdGender.innerHTML = `
+      <select class="cellInput" data-col="1" data-row="${i}">
+        <option value=""></option>
+        <option value="남">남</option>
+        <option value="여">여</option>
+      </select>`;
+    tr.appendChild(tdGender);
+
+    const tdScore = document.createElement("td");
+    tdScore.innerHTML = `<input class="cellInput" type="text" inputmode="decimal" data-col="2" data-row="${i}" placeholder="" />`;
+    tr.appendChild(tdScore);
+
+    for (let j=0;j<traits.length;j++){
+      const t = traits[j];
+      const td = document.createElement("td");
+      td.className = "checkcell";
+      td.innerHTML = `<input type="checkbox" data-col="${3+j}" data-row="${i}" data-trait="${escapeHtml(t)}" aria-label="${escapeHtml(t)}" />`;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  area.appendChild(table);
+
+  // Restore snapshot where possible.
+  if (snapshot){
+    const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
+    for (let i=0;i<Math.min(snapshot.length, rows.length);i++){
+      const snap = snapshot[i];
+      rows[i].querySelector('input[data-col="0"]').value = snap.name || "";
+      rows[i].querySelector('select[data-col="1"]').value = normalizeGenderToken(snap.gender) || "";
+      rows[i].querySelector('input[data-col="2"]').value = snap.score || "";
+      for (const cb of Array.from(rows[i].querySelectorAll('input[type="checkbox"][data-trait]'))){
+        const tn = cb.dataset.trait;
+        cb.checked = !!snap.traits?.[tn];
+      }
+    }
+  }
+
+  recomputeGridIds();
+}
+
+function fillGridFromRosterLines(lines){
+  $("inputType").value = "grid";
+  syncInputTypeUI();
+
+  const n = Math.max(40, lines.length);
+  $("gridRows").value = String(Math.min(400, n));
+  buildGrid({preserve:false});
+
+  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
+  for (let i=0;i<Math.min(lines.length, rows.length);i++){
+    const p = parseNameGender(lines[i]);
+    rows[i].querySelector('input[data-col="0"]').value = p.name || "";
+    if (p.gender) rows[i].querySelector('select[data-col="1"]').value = p.gender;
+  }
+  recomputeGridIds();
+}
+
+function syncInputTypeUI(){
+  const t = $("inputType")?.value || "single";
+  const showByClass = (t === "byClass");
+  const showGrid = (t === "grid");
+  const showRoster = (t === "single");
+
+  $("existingCountWrap").style.display = showByClass ? "" : "none";
+  $("byClassArea").style.display = showByClass ? "" : "none";
+  $("gridWrap").style.display = showGrid ? "" : "none";
+  $("rosterWrap").style.display = showRoster ? "" : "none";
+
+  if (showByClass) buildByClassInputs();
+  if (showGrid) buildGrid({preserve:true});
+}
+
+// UI toggle: roster vs existing classes vs grid
 $("inputType").addEventListener("change", syncInputTypeUI);
 $("existingCount").addEventListener("input", ()=>{
   if (($("inputType")?.value || "single") === "byClass") buildByClassInputs();
 });
+$("gridRows").addEventListener("input", ()=>{
+  if (($("inputType")?.value || "single") === "grid") buildGrid({preserve:true});
+});
 syncInputTypeUI();
+
+// Grid tools
+$("btnGridAdd").addEventListener("click", ()=>{
+  const cur = Math.max(1, Math.min(400, parseInt($("gridRows").value || "40", 10)));
+  $("gridRows").value = String(Math.min(400, cur + 10));
+  buildGrid({preserve:true});
+});
+$("btnGridClear").addEventListener("click", ()=>{
+  for (const tr of Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'))){
+    tr.querySelector('input[data-col="0"]').value = "";
+    tr.querySelector('select[data-col="1"]').value = "";
+    tr.querySelector('input[data-col="2"]').value = "";
+    for (const cb of Array.from(tr.querySelectorAll('input[type="checkbox"][data-trait]'))) cb.checked = false;
+  }
+  recomputeGridIds();
+});
+$("btnGridImportRoster").addEventListener("click", ()=>{
+  const lines = splitLines($("roster").value);
+  if (!lines.length) return;
+  fillGridFromRosterLines(lines);
+});
+
+// Excel-like paste (TSV) into grid
+let gridIdRecomputeTimer = null;
+$("gridArea").addEventListener("input", (e)=>{
+  const t = e.target;
+  if (!(t instanceof HTMLElement)) return;
+  if (!t.matches('input[data-col="0"], select[data-col="1"]')) return;
+  if (gridIdRecomputeTimer) clearTimeout(gridIdRecomputeTimer);
+  gridIdRecomputeTimer = setTimeout(recomputeGridIds, 60);
+});
+
+$("gridArea").addEventListener("paste", (e)=>{
+  const target = e.target;
+  if (!(target instanceof HTMLElement)) return;
+  if (!target.matches("input, select")) return;
+  const col = parseInt(target.dataset.col || "0", 10);
+  const row = parseInt(target.dataset.row || "0", 10);
+
+  const text = e.clipboardData?.getData("text/plain");
+  if (!text) return;
+  e.preventDefault();
+
+  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  const grid = lines
+    .map(l=>l.split("\t"))
+    .map(cols=>cols.map(c=>c));
+
+  const required = row + grid.length;
+  const curRows = Math.max(1, Math.min(400, parseInt($("gridRows").value || "40", 10)));
+  if (required > curRows){
+    $("gridRows").value = String(Math.min(400, required));
+    buildGrid({preserve:true});
+  }
+
+  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
+  const traits = gridTraitNames();
+
+  function setCell(r, c, val){
+    if (!rows[r]) return;
+    const v = cleanLine(val);
+    if (c===0){
+      const p = parseNameGender(v);
+      rows[r].querySelector('input[data-col="0"]').value = p.name || "";
+      const sel = rows[r].querySelector('select[data-col="1"]');
+      if (p.gender && sel && !sel.value) sel.value = p.gender;
+      return;
+    }
+    if (c===1){
+      rows[r].querySelector('select[data-col="1"]').value = normalizeGenderToken(v);
+      return;
+    }
+    if (c===2){
+      rows[r].querySelector('input[data-col="2"]').value = v;
+      return;
+    }
+    const ti = c - 3;
+    if (ti >= 0 && ti < traits.length){
+      const cb = rows[r].querySelector(`input[type="checkbox"][data-trait="${CSS.escape(traits[ti])}"]`);
+      if (cb) cb.checked = truthyToken(v);
+    }
+  }
+
+  for (let r=0;r<grid.length;r++){
+    for (let c=0;c<grid[r].length;c++){
+      setCell(row + r, col + c, grid[r][c]);
+    }
+  }
+  recomputeGridIds();
+});
 
 function hashSeed(str){
   // simple deterministic hash -> int
@@ -599,23 +1068,181 @@ function downloadText(filename, text){
   URL.revokeObjectURL(a.href);
 }
 
-/* ========= UI: traits area build ========= */
-function buildTraitsArea(){
-  const names = splitLines($("traitNames").value.replace(/,/g,"\n"));
-  const area = $("traitsArea");
-  area.innerHTML = "";
-  for (const t of names){
-    const div = document.createElement("div");
-    div.className = "field";
-    div.innerHTML = `
-      <label>특성: ${t} (해당 학생 이름만 줄바꿈으로)</label>
-      <textarea data-trait="${t}" placeholder="예:\n홍길동\n김하나"></textarea>
+/* ========= UI: student sheet (trait dropdown) ========= */
+function getTraitList(){
+  return splitLines($("traitNames").value.replace(/,/g,"\n"));
+}
+
+function makeTraitPicker(selectedSet, traitList){
+  const wrap = document.createElement("div");
+  wrap.className = "pop";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "smallBtn popBtn";
+  btn.textContent = selectedSet.size ? `특성 ${selectedSet.size}개 선택됨` : "특성 선택";
+
+  const panel = document.createElement("div");
+  panel.className = "popPanel";
+
+  const badgeBox = document.createElement("div");
+  badgeBox.className = "badgeBox";
+  badgeBox.style.marginBottom = "8px";
+  panel.appendChild(badgeBox);
+
+  function refreshBadges(){
+    badgeBox.innerHTML = "";
+    for (const t of Array.from(selectedSet)){
+      const b = document.createElement("span");
+      b.className = "badge";
+      b.textContent = t;
+      badgeBox.appendChild(b);
+    }
+    btn.textContent = selectedSet.size ? `특성 ${selectedSet.size}개 선택됨` : "특성 선택";
+  }
+
+  for (const t of traitList){
+    const item = document.createElement("label");
+    item.className = "popItem";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = selectedSet.has(t);
+    cb.addEventListener("change", ()=>{
+      if (cb.checked) selectedSet.add(t);
+      else selectedSet.delete(t);
+      refreshBadges();
+    });
+    const span = document.createElement("span");
+    span.textContent = t;
+    item.appendChild(cb);
+    item.appendChild(span);
+    panel.appendChild(item);
+  }
+
+  btn.addEventListener("click", ()=>{
+    wrap.classList.toggle("open");
+  });
+
+  // close on outside click
+  document.addEventListener("click", (e)=>{
+    if (!wrap.contains(e.target)) wrap.classList.remove("open");
+  });
+
+  wrap.appendChild(btn);
+  wrap.appendChild(panel);
+  refreshBadges();
+  return {wrap, selectedSet};
+}
+
+function sheetSnapshot(){
+  const rows = Array.from(document.querySelectorAll("#sheetBody tr[data-student-id]"));
+  const snap = new Map();
+  for (const r of rows){
+    const id = r.dataset.studentId;
+    const gender = r.querySelector('select[data-sheet="gender"]')?.value || "";
+    const score = r.querySelector('input[data-sheet="score"]')?.value || "";
+    const sib = r.querySelector('input[data-sheet="sib"]')?.value || "";
+    const traits = Array.from(r.querySelectorAll('input[type="checkbox"][data-sheet-trait]'))
+      .filter(cb=>cb.checked)
+      .map(cb=>cb.dataset.sheetTrait);
+    snap.set(id, {gender, score, sib, traits});
+  }
+  return snap;
+}
+
+function buildSheetFromRoster(){
+  const inputType = $("inputType") ? $("inputType").value : "single";
+  let rosterLines = [];
+  if (inputType === "byClass") rosterLines = readExistingClassRoster();
+  else rosterLines = splitLines($("roster").value);
+
+  const tbody = $("sheetBody");
+  if (!rosterLines.length){
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);">명렬표가 비어있어요.</td></tr>`;
+    return;
+  }
+
+  const prev = sheetSnapshot();
+
+  // parse + disambiguate
+  const parsed = rosterLines.map(parseNameGender);
+  const baseNames = parsed.map(x=>x.name);
+  const ids = disambiguateNames(baseNames);
+  const traitList = getTraitList();
+
+  tbody.innerHTML = "";
+
+  for (let i=0;i<ids.length;i++){
+    const id = ids[i];
+    const base = parsed[i].name;
+    const g0 = parsed[i].gender || "";
+    const keep = prev.get(id);
+
+    const tr = document.createElement("tr");
+    tr.dataset.studentId = id;
+
+    const tdNo = document.createElement("td");
+    tdNo.textContent = String(i+1);
+    tr.appendChild(tdNo);
+
+    const tdName = document.createElement("td");
+    tdName.textContent = id;
+    tdName.dataset.baseName = base;
+    tr.appendChild(tdName);
+
+    const tdGender = document.createElement("td");
+    const selG = document.createElement("select");
+    selG.dataset.sheet = "gender";
+    selG.innerHTML = `
+      <option value="">미상</option>
+      <option value="남">남</option>
+      <option value="여">여</option>
     `;
-    area.appendChild(div);
+    selG.value = keep?.gender || g0;
+    tdGender.appendChild(selG);
+    tr.appendChild(tdGender);
+
+    const tdScore = document.createElement("td");
+    const inpS = document.createElement("input");
+    inpS.type = "number";
+    inpS.dataset.sheet = "score";
+    inpS.value = keep?.score || "";
+    tdScore.appendChild(inpS);
+    tr.appendChild(tdScore);
+
+    const tdTraits = document.createElement("td");
+    const set = new Set(keep?.traits || []);
+    const picker = makeTraitPicker(set, traitList);
+    // mark checkboxes so we can read them later
+    for (const cb of Array.from(picker.wrap.querySelectorAll('input[type="checkbox"]'))){
+      const label = cb.parentElement?.textContent?.trim() || "";
+      cb.dataset.sheetTrait = label;
+    }
+    tdTraits.appendChild(picker.wrap);
+    tr.appendChild(tdTraits);
+
+    const tdSib = document.createElement("td");
+    const inpG = document.createElement("input");
+    inpG.type = "text";
+    inpG.dataset.sheet = "sib";
+    inpG.value = keep?.sib || "";
+    tdSib.appendChild(inpG);
+    tr.appendChild(tdSib);
+
+    tbody.appendChild(tr);
   }
 }
-$("traitNames").addEventListener("input", buildTraitsArea);
-buildTraitsArea();
+
+$("btnBuildSheet").addEventListener("click", buildSheetFromRoster);
+$("btnClearSheet").addEventListener("click", ()=>{
+  $("sheetBody").innerHTML = `<tr><td colspan="6" style="color:var(--muted);">명렬표를 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
+});
+
+// trait list changes should refresh pickers (keep current selections where possible)
+$("traitNames").addEventListener("input", ()=>{
+  const hasSheet = document.querySelectorAll("#sheetBody tr[data-student-id]").length > 0;
+  if (hasSheet) buildSheetFromRoster();
+});
 
 /* ========= Core: parse inputs ========= */
 function readInputs(){
@@ -682,18 +1309,29 @@ function readInputs(){
     }
   }
 
-  // traits
-  const traitTextareas = Array.from(document.querySelectorAll("#traitsArea textarea"));
-  for (const ta of traitTextareas){
-    const tname = ta.dataset.trait;
-    const names = splitLines(ta.value);
-    for (const nm of names){
-      const ids2 = resolveToIds(nm, nameMap);
-      if (!ids2) continue;
-      for (const sid of ids2){
-        const st = students.find(x=>x.id===sid);
-        if (st) st.traits.add(tname);
-      }
+  // sheet: gender/score/traits/sibling-group (takes precedence over roster/boys&girls/scores textarea)
+  const sheetRows = Array.from(document.querySelectorAll("#sheetBody tr[data-student-id]"));
+  if (sheetRows.length){
+    for (const r of sheetRows){
+      const studentId = r.dataset.studentId;
+      const st = students.find(x=>x.id === studentId);
+      if (!st) continue;
+
+      const genderSel = r.querySelector('select[data-sheet="gender"]');
+      const scoreInp = r.querySelector('input[data-sheet="score"]');
+      const sibInp = r.querySelector('input[data-sheet="sib"]');
+
+      const gv = cleanLine(genderSel?.value || "");
+      if (gv) st.gender = gv;
+
+      const sv = scoreInp?.value;
+      if (!(sv === "" || sv == null)) st.score = parseFloat(sv);
+
+      const gname = cleanLine(sibInp?.value || "");
+      st.sibGroup = gname || null;
+
+      const checks = Array.from(r.querySelectorAll('input[type="checkbox"][data-sheet-trait]'));
+      st.traits = new Set(checks.filter(c=>c.checked).map(c=>c.dataset.sheetTrait).filter(Boolean));
     }
   }
 
@@ -715,9 +1353,8 @@ function readInputs(){
     }
   }
 
-  // sibling groups
+  // sibling groups (from textarea, then recomputed from final st.sibGroup values incl. sheet column)
   const sibLines = splitLines($("siblings").value);
-  const sibGroups = [];
   for (const line of sibLines){
     const m = line.match(/^(.+?)\s*[:：]\s*(.+)$/);
     if (!m) continue;
@@ -731,12 +1368,25 @@ function readInputs(){
     }
     const uniqMembers = uniq(members);
     if (uniqMembers.length>=2){
-      sibGroups.push({name:gname, members:uniqMembers});
       for (const sid of uniqMembers){
         const st = students.find(s=>s.id===sid);
-        if (st) st.sibGroup = gname;
+        // if sheet provided a group, keep it; otherwise apply textarea group
+        if (st && !st.sibGroup) st.sibGroup = gname;
       }
     }
+  }
+
+  const sibGroups = [];
+  const byGroup = new Map();
+  for (const st of students){
+    const g = cleanLine(st.sibGroup || "");
+    if (!g) continue;
+    if (!byGroup.has(g)) byGroup.set(g, []);
+    byGroup.get(g).push(st.id);
+  }
+  for (const [gname, members] of byGroup.entries()){
+    const uniqMembers = uniq(members);
+    if (uniqMembers.length >= 2) sibGroups.push({name:gname, members:uniqMembers});
   }
 
   const traitNames = splitLines($("traitNames").value.replace(/,/g,"\n"));
@@ -1156,7 +1806,7 @@ $("btnReset").onclick = ()=>{
   $("byClassArea").innerHTML = "";
   syncInputTypeUI();
   $("traitNames").value="ADHD,기초학력,특수교육대상,상자,교우관계,사춘기";
-  buildTraitsArea();
+  $("sheetBody").innerHTML = `<tr><td colspan="6" style="color:var(--muted);">명렬표를 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
   setMsg("");
   last=null;
   $("tabs").innerHTML="";
@@ -1207,15 +1857,29 @@ $("btnExample").onclick = ()=>{
 쌍둥이1: 유서연, 서하린`;
 
   $("traitNames").value = "ADHD,기초학력,특수교육대상,교우관계";
-  buildTraitsArea();
-  const tas = Array.from(document.querySelectorAll("#traitsArea textarea"));
-  tas.find(x=>x.dataset.trait==="ADHD").value = `박민수
-오민재`;
-  tas.find(x=>x.dataset.trait==="기초학력").value = `장도윤
-한시우`;
-  tas.find(x=>x.dataset.trait==="특수교육대상").value = `윤지호`;
-  tas.find(x=>x.dataset.trait==="교우관계").value = `홍길동
-조아라`;
+  buildSheetFromRoster();
+
+  // Fill a few traits in the sheet to demonstrate the dropdown UX.
+  const traitMap = new Map([
+    ["박민수", ["ADHD"]],
+    ["오민재", ["ADHD"]],
+    ["장도윤", ["기초학력"]],
+    ["한시우", ["기초학력"]],
+    ["윤지호", ["특수교육대상"]],
+    ["홍길동", ["교우관계"]],
+    ["조아라", ["교우관계"]],
+  ]);
+  const rows = Array.from(document.querySelectorAll("#sheetBody tr[data-student-id]"));
+  for (const r of rows){
+    const id = r.dataset.studentId || "";
+    const base = id.replace(/[a-z]$/,"");
+    const want = traitMap.get(base);
+    if (!want) continue;
+    const checks = Array.from(r.querySelectorAll('input[type="checkbox"][data-sheet-trait]'));
+    for (const cb of checks){
+      cb.checked = want.includes(cb.dataset.sheetTrait);
+    }
+  }
 
   setMsg("예시를 채웠습니다. '반편성 생성'을 눌러 확인해보세요.", true);
 };
