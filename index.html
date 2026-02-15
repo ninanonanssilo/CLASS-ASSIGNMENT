@@ -840,11 +840,12 @@
             <h2 style="margin:0 0 4px;">생성 결과</h2>
             <div class="hint">복사/다운로드 후 결과가 마음에 들지 않으면 다시 생성해 다른 조합도 만들어보세요.</div>
           </div>
-          <div class="btns" style="margin:0;">
-            <button id="btnCopy">결과 복사</button>
-            <button id="btnCSV">CSV 다운로드</button>
-          </div>
-        </div>
+	          <div class="btns" style="margin:0;">
+	            <button id="btnCopy">결과 복사</button>
+	            <button id="btnSheets">구글 스프레드시트로 열기</button>
+	            <button id="btnCSV">CSV 다운로드</button>
+	          </div>
+	        </div>
 
         <div class="tabs" id="tabs"></div>
         <div id="tables" class="tables"></div>
@@ -929,11 +930,29 @@ function syncInputTypeUI(){
   if (showByClass) buildByClassInputs();
 }
 
+function syncModeGradeUI(){
+  const mode = $("mode")?.value || "new";
+  const gradeSel = $("grade");
+  if (!gradeSel) return;
+
+  const isNew = (mode === "new");
+  if (isNew){
+    // 신입생은 기본 1학년으로 고정 (선택 안해도 결과가 1학년으로 일관되게)
+    if (!cleanLine(gradeSel.value)) gradeSel.value = "1";
+    gradeSel.disabled = true;
+  } else {
+    gradeSel.disabled = false;
+  }
+}
+
 $("inputType").addEventListener("change", syncInputTypeUI);
 $("existingCount").addEventListener("input", ()=>{
   if (($("inputType")?.value || "single") === "byClass") buildByClassInputs();
 });
 syncInputTypeUI();
+
+$("mode")?.addEventListener("change", syncModeGradeUI);
+syncModeGradeUI();
 
 function hashSeed(str){
   // simple deterministic hash -> int
@@ -1289,7 +1308,9 @@ function readInputs(){
   const k = Math.max(2, Math.min(20, parseInt($("k").value||"4",10)));
   // seed: internal only (user input removed)
   const seed = String(Date.now());
-  const grade = cleanLine($("grade")?.value || "");
+  const mode = $("mode")?.value || "new";
+  let grade = cleanLine($("grade")?.value || "");
+  if (mode === "new" && !grade) grade = "1";
   const priorityOrder = [cleanLine($("prio1")?.value || ""), cleanLine($("prio2")?.value || ""), cleanLine($("prio3")?.value || "")].filter(Boolean);
   const priority = priorityOrder[0] || "gender";
 
@@ -1482,7 +1503,7 @@ function readInputs(){
   }
 
   const traitNames = splitLines($("traitNames").value.replace(/,/g,"\n"));
-  return {k, seed, grade, priority, priorityOrder, students, traitNames, sibGroups};
+  return {k, seed, mode, grade, priority, priorityOrder, students, traitNames, sibGroups};
 }
 
 /* ========= Scoring / penalty ========= */
@@ -1849,6 +1870,64 @@ $("btnCSV").onclick = ()=>{
   }).join(",")).join("\n");
   // Excel on Windows often needs UTF-8 BOM to avoid mojibake.
   downloadText("반편성_결과.csv", "\ufeff" + csv, "text/csv;charset=utf-8");
+};
+
+$("btnSheets").onclick = async ()=>{
+  if (!last) return;
+  const {classes, input} = last;
+  const gradePrefix = input.grade ? `${input.grade}-` : "";
+
+  // Google Sheets paste works best with TSV.
+  const rows = [[
+    "기준",
+    "이전반",
+    "이전번호",
+    "이전-반-번호",
+    "학년",
+    "반",
+    "번호",
+    "학년-반-번호",
+    "이름",
+    "성별",
+    "점수",
+    "특성",
+    "쌍둥이그룹",
+  ]];
+
+  classes.forEach((cls, idx)=>{
+    cls.forEach((s,i)=>{
+      const traits = input.traitNames.filter(t=>s.traits.has(t)).join("|");
+      const newClass = idx+1;
+      const newNo = i+1;
+      const g = input.grade || "";
+      const gcn = `${gradePrefix}${newClass}-${newNo}`;
+      const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
+      rows.push([
+        input.grade ? "진급반 기준" : "현재반 기준",
+        s.prevClass ?? "",
+        s.prevNo ?? "",
+        prev,
+        g,
+        String(newClass),
+        String(newNo),
+        gcn,
+        s.display,
+        s.gender||"",
+        s.score??"",
+        traits,
+        s.sibGroup||"",
+      ]);
+    });
+  });
+
+  const tsv = rows.map(r=>r.map(v=>String(v??"").replaceAll("\t"," ").replaceAll("\n"," ")).join("\t")).join("\n");
+  try{
+    await navigator.clipboard.writeText(tsv);
+    setMsg("구글 스프레드시트를 새로 열었습니다. 새 시트에서 Ctrl+V로 붙여넣기 하세요. (결과는 클립보드에 복사됨)", true);
+  }catch{
+    setMsg("클립보드 복사 권한이 없어 자동 복사가 실패했어요. 결과 복사를 누른 뒤 구글 스프레드시트에서 붙여넣기(Ctrl+V) 해주세요.", false);
+  }
+  window.open("https://docs.google.com/spreadsheets/u/0/create", "_blank", "noopener,noreferrer");
 };
 
 /* ========= Generate ========= */
