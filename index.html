@@ -19,32 +19,41 @@
       font-style: normal;
     }
 
-    :root{
-      --bg:#ffffff;
-      --card:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --soft:#f3f4f6;
+	    :root{
+	      --bg:#ffffff;
+	      --card:#ffffff;
+	      --ink:#111827;
+	      --muted:#6b7280;
+	      --line:#e5e7eb;
+	      --soft:#f3f4f6;
 
-      --mint:#e9f6e4;
-      --shadow: 0 8px 22px rgba(17, 24, 39, 0.08);
-      --radius: 10px;
-    }
+	      --mint:#e9f6e4;
+	      --shadow: 0 8px 22px rgba(17, 24, 39, 0.08);
+	      --radius: 10px;
+
+	      /* responsive sizing */
+	      --fs: clamp(14px, 3.7vw, 16px);
+	      --pad-wrap-x: clamp(14px, 4vw, 18px);
+	      --pad-card: clamp(12px, 3.6vw, 16px);
+	      --ctl-h: clamp(38px, 10vw, 44px);
+	      --ctl-pad-y: clamp(8px, 2.3vw, 12px);
+	      --ctl-pad-x: clamp(10px, 2.6vw, 14px);
+	    }
 
     *{box-sizing:border-box}
     input, textarea, select, button{
       font: inherit;
       font-size: 16px; /* iOS input auto-zoom prevention */
     }
-    body{
-      margin:0;
-      font-family: "Paperlogy", "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color:var(--ink);
-      word-break: keep-all;
-      overflow-wrap: break-word;
-    }
+	    body{
+	      margin:0;
+	      font-family: "Paperlogy", "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+	      background: var(--bg);
+	      color:var(--ink);
+	      word-break: keep-all;
+	      overflow-wrap: break-word;
+	      font-size: var(--fs);
+	    }
 
     a{color:inherit; text-decoration:none}
     .wrap{max-width:1100px; margin:0 auto; padding:0;}
@@ -56,16 +65,16 @@
         radial-gradient(900px 280px at 10% 0%, rgba(233, 246, 228, 0.85), rgba(255, 255, 255, 0) 60%),
         radial-gradient(740px 260px at 90% 0%, rgba(37, 99, 235, 0.10), rgba(255, 255, 255, 0) 60%);
     }
-    .top-inner{
-      max-width: 1180px;
-      margin: 0 auto;
-      padding-left: 16px;
-      padding-right: 16px;
-      display:flex;
-      align-items:center;
-      gap:14px;
-      min-width:0;
-    }
+	    .top-inner{
+	      max-width: 1180px;
+	      margin: 0 auto;
+	      padding-left: max(var(--pad-wrap-x), env(safe-area-inset-left));
+	      padding-right: max(var(--pad-wrap-x), env(safe-area-inset-right));
+	      display:flex;
+	      align-items:center;
+	      gap:14px;
+	      min-width:0;
+	    }
     .nav-toggle{
       appearance:none;
       border:1px solid var(--line);
@@ -103,28 +112,28 @@
       gap:10px;
       min-width:0;
     }
-    .title{
-      margin:0;
-      font-size:26px;
-      letter-spacing:-0.4px;
-      font-weight:900;
-    }
-    .subtitle{
-      margin-top:2px;
-      color:var(--muted);
-      font-size:13px;
-    }
+	    .title{
+	      margin:0;
+	      font-size: clamp(20px, 5.2vw, 26px);
+	      letter-spacing:-0.4px;
+	      font-weight:900;
+	    }
+	    .subtitle{
+	      margin-top:2px;
+	      color:var(--muted);
+	      font-size: clamp(12px, 3.2vw, 13px);
+	    }
 
-    .page{
-      width:100%;
-      max-width:1180px;
-      margin-inline:auto;
-      padding-left:16px;
-      padding-right:16px;
-      padding-top:12px;
-      padding-bottom:48px;
-      min-height:100vh;
-    }
+	    .page{
+	      width:100%;
+	      max-width:1180px;
+	      margin-inline:auto;
+	      padding-left:max(var(--pad-wrap-x), env(safe-area-inset-left));
+	      padding-right:max(var(--pad-wrap-x), env(safe-area-inset-right));
+	      padding-top:12px;
+	      padding-bottom:48px;
+	      min-height:100vh;
+	    }
 
     /* money-report-like sidebar (hamburger category) */
     .sidebar{
@@ -234,7 +243,6 @@
       flex:0 0 auto;
     }
     .side-label{font-weight:900; text-align:left;}
-    .side-link.is-active .side-label{ text-align:center; }
     .side-ext{color: var(--muted); font-weight:900; text-align:right;}
     .side-divider{height:1px; background: var(--line); margin:14px 0;}
     .side-note{color: var(--muted); font-size:12px; line-height:1.5;}
@@ -257,13 +265,14 @@
     @media (max-width: 980px){
       .grid{grid-template-columns:1fr}
     }
-    .card{
-      background:rgba(255,255,255,.9);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:16px;
-    }
+	    .card{
+	      background:rgba(255,255,255,.9);
+	      border:1px solid var(--line);
+	      border-radius: var(--radius);
+	      box-shadow: var(--shadow);
+	      padding: var(--pad-card);
+	      min-width: 0;
+	    }
     .card h2{
       margin:0 0 10px;
       font-size:16px;
@@ -310,16 +319,16 @@
       color:var(--muted);
       line-height:1.2;
     }
-    input[type="text"], input[type="number"], textarea, select{
-      width:100%;
-      padding:12px 14px;
-      min-height:44px;
-      line-height:1.3;
-      border-radius: 14px;
-      border:1px solid var(--line);
-      background:#fff;
-      outline:none;
-    }
+	    input[type="text"], input[type="number"], textarea, select{
+	      width:100%;
+	      padding: var(--ctl-pad-y) var(--ctl-pad-x);
+	      min-height: var(--ctl-h);
+	      line-height:1.3;
+	      border-radius: 14px;
+	      border:1px solid var(--line);
+	      background:#fff;
+	      outline:none;
+	    }
     select{padding-right:44px;}
     textarea{min-height:120px; resize:vertical}
     input:focus, textarea:focus, select:focus{
@@ -407,16 +416,16 @@
       font-weight:800;
     }
     .classTitle small{font-weight:600; color:var(--muted)}
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
-    }
-    th, td{
-      padding:10px 10px;
-      border-bottom:1px solid var(--line);
-      vertical-align:top;
-    }
+	    table{
+	      width:100%;
+	      border-collapse:collapse;
+	      font-size: clamp(12px, 3.1vw, 13px);
+	    }
+	    th, td{
+	      padding: clamp(8px, 2.4vw, 10px) clamp(8px, 2.4vw, 10px);
+	      border-bottom:1px solid var(--line);
+	      vertical-align:top;
+	    }
     th{
       text-align:left;
       color:var(--muted);
@@ -432,22 +441,29 @@
       padding:10px 12px; background:rgba(241,245,249,.6); border-bottom:1px solid var(--line);
     }
     .sheetHead .hint{margin:0}
-    table.sheet{
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
-    }
-    table.sheet th, table.sheet td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle}
+	    table.sheet{
+	      width:100%;
+	      border-collapse:collapse;
+	      font-size: clamp(12px, 3.1vw, 13px);
+	    }
+	    table.sheet th, table.sheet td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle}
     table.sheet th{background:rgba(241,245,249,.55); color:var(--muted); font-weight:700}
-    table.sheet td input:not([type="checkbox"]), table.sheet td select{
-      width:100%;
-      min-height:40px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      outline:none;
-      font-size:13px;
-    }
+	    table.sheet td input:not([type="checkbox"]), table.sheet td select{
+	      width:100%;
+	      min-height:40px;
+	      padding:8px 10px;
+	      border-radius:12px;
+	      border:1px solid var(--line);
+	      outline:none;
+	      font-size:13px;
+	    }
+	    @media (max-width: 420px){
+	      table.sheet th, table.sheet td{padding:8px 8px;}
+	      table.sheet td input:not([type="checkbox"]), table.sheet td select{
+	        min-height: 38px;
+	        padding: 7px 8px;
+	      }
+	    }
     table.sheet td select{
       font-weight:800;
       padding-right:40px;
@@ -605,7 +621,7 @@
           <summary>사용 안내</summary>
           <div class="hint">
             <div class="helpSteps">
-              <div>1. <b>K(몇 반)</b>을 설정합니다.</div>
+              <div>1. <b>몇 반 생성할지</b>를 설정합니다.</div>
               <div>2. 명렬표를 붙여넣고, <b>표 생성/새로고침</b>을 눌러 학생 표를 만듭니다.</div>
               <div>3. 학생 표에서 <b>성별/점수/특성</b>을 입력한 뒤 <b>반편성 생성</b>을 누릅니다.</div>
               <div>4. 민감한 정보(금지 조합 등)는 최소한으로만 입력하세요.</div>
@@ -891,11 +907,15 @@ function buildByClassInputs(){
   }
 }
 
-function readExistingClassRoster(){
+function readExistingClassRosterEntries(){
   const tas = Array.from(document.querySelectorAll('#byClassArea textarea[data-existing-class]'));
   const all = [];
   for (const ta of tas){
-    all.push(...splitLines(ta.value));
+    const clsNo = parseInt(ta.dataset.existingClass || "0", 10) || null;
+    const lines = splitLines(ta.value);
+    for (let i=0;i<lines.length;i++){
+      all.push({raw: lines[i], prevClass: clsNo, prevNo: i+1});
+    }
   }
   return all;
 }
@@ -1084,7 +1104,7 @@ function sheetSnapshot(){
 function buildSheetFromRoster(){
   const inputType = $("inputType") ? $("inputType").value : "single";
   let rosterLines = [];
-  if (inputType === "byClass") rosterLines = readExistingClassRoster();
+  if (inputType === "byClass") rosterLines = readExistingClassRosterEntries().map(e=>e.raw);
   else rosterLines = splitLines($("roster").value);
 
   const tbody = $("sheetBody");
@@ -1266,17 +1286,18 @@ function readInputs(){
   const priority = priorityOrder[0] || "gender";
 
   // roster
-  let rosterLines = [];
+  let rosterEntries = [];
   const inputType = $("inputType") ? $("inputType").value : "single";
   if (inputType === "byClass"){
-    rosterLines = readExistingClassRoster();
+    rosterEntries = readExistingClassRosterEntries();
   } else {
-    rosterLines = splitLines($("roster").value);
+    const lines = splitLines($("roster").value);
+    rosterEntries = lines.map((raw, i)=>({raw, prevClass: null, prevNo: i+1}));
   }
-  if (rosterLines.length < k) throw new Error("학생 명렬표가 너무 적습니다. 최소 반 수 이상 입력해 주세요.");
+  if (rosterEntries.length < k) throw new Error("학생 명렬표가 너무 적습니다. 최소 반 수 이상 입력해 주세요.");
 
   // parse roster with optional gender
-  const parsed = rosterLines.map(parseNameGender);
+  const parsed = rosterEntries.map(e=>parseNameGender(e.raw));
   const baseNames = parsed.map(x=>x.name);
   const ids = disambiguateNames(baseNames);
 
@@ -1288,6 +1309,8 @@ function readInputs(){
     score: null,
     traits: new Set(),
     sibGroup: null,
+    prevClass: rosterEntries[i].prevClass,
+    prevNo: rosterEntries[i].prevNo,
     avoid: new Set()
   }));
 
@@ -1770,11 +1793,45 @@ $("btnCopy").onclick = ()=>{
 $("btnCSV").onclick = ()=>{
   if (!last) return;
   const {classes, input} = last;
-  const rows = [["반","번호","이름","성별","점수","특성","쌍둥이그룹"]];
+  const gradePrefix = input.grade ? `${input.grade}-` : "";
+  const rows = [[
+    "기준",
+    "이전반",
+    "이전번호",
+    "이전-반-번호",
+    "학년",
+    "반",
+    "번호",
+    "학년-반-번호",
+    "이름",
+    "성별",
+    "점수",
+    "특성",
+    "쌍둥이그룹",
+  ]];
   classes.forEach((cls, idx)=>{
     cls.forEach((s,i)=>{
       const traits = input.traitNames.filter(t=>s.traits.has(t)).join("|");
-      rows.push([`${idx+1}`, `${i+1}`, s.display, s.gender||"", s.score??"", traits, s.sibGroup||""]);
+      const newClass = idx+1;
+      const newNo = i+1;
+      const g = input.grade || "";
+      const gcn = `${gradePrefix}${newClass}-${newNo}`;
+      const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
+      rows.push([
+        input.grade ? "진급반 기준" : "현재반 기준",
+        s.prevClass ?? "",
+        s.prevNo ?? "",
+        prev,
+        g,
+        String(newClass),
+        String(newNo),
+        gcn,
+        s.display,
+        s.gender||"",
+        s.score??"",
+        traits,
+        s.sibGroup||"",
+      ]);
     });
   });
   const csv = rows.map(r=>r.map(v=>{
@@ -1843,8 +1900,8 @@ $("btnReset").onclick = ()=>{
   $("byClassArea").innerHTML = "";
   syncInputTypeUI();
   $("traitNames").value="ADHD,기초학력,특수교육대상,교우관계,사춘기";
-  $("sibRuleSelect").value = "same";
   $("sheetBody").innerHTML = `<tr><td colspan="6" style="color:var(--muted);">명렬표를 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
+  $("twinBody").innerHTML = `<tr><td colspan="5" style="color:var(--muted);">쌍둥이 목록을 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
   setMsg("");
   last=null;
   $("tabs").innerHTML="";
@@ -1852,25 +1909,31 @@ $("btnReset").onclick = ()=>{
 };
 
 $("btnExample").onclick = ()=>{
-  $("inputType").value = "single";
+  $("inputType").value = "byClass";
+  $("existingCount").value = "3";
   syncInputTypeUI();
   $("k").value = 4;
-  $("roster").value = `김하나(여)
-홍길동(남)
-박민수(남)
-이영희(여)
-최서준(남)
-정지우(여)
+
+  // Fill existing class rosters (names only)
+  const tas = Array.from(document.querySelectorAll('#byClassArea textarea[data-existing-class]'));
+  const t1 = tas.find(x=>x.dataset.existingClass==="1");
+  const t2 = tas.find(x=>x.dataset.existingClass==="2");
+  const t3 = tas.find(x=>x.dataset.existingClass==="3");
+  if (t1) t1.value = `홍길동
 김하나
-김하나
-오민재(남)
-유서연(여)
-장도윤(남)
-서하린(여)
-윤지호(남)
-배하은(여)
-한시우(남)
-조아라(여)`;
+박민수
+이영희
+최서준`;
+  if (t2) t2.value = `정지우
+오민재
+유서연
+장도윤
+서하린`;
+  if (t3) t3.value = `윤지호
+배하은
+한시우
+조아라
+김하나`;
 
   $("scores").value = `김하나 92
 홍길동 88
@@ -1890,10 +1953,11 @@ $("btnExample").onclick = ()=>{
   $("avoidPairs").value = `홍길동 - 박민수
 김하나 - 이영희`;
 
-  $("siblings").value = `A가족: 김하나, 김하나a
-쌍둥이1: 유서연, 서하린`;
+  $("siblings").value = `유서연 - 서하린
+김하나 - 김하나a`;
 
   $("traitNames").value = "ADHD,기초학력,특수교육대상,교우관계";
+  buildTwinsTable();
   buildSheetFromRoster();
 
   // Fill a few traits in the sheet to demonstrate the dropdown UX.
