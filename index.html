@@ -730,14 +730,14 @@
             <div style="overflow:auto;">
               <table class="sheet">
                 <thead>
-                  <tr>
-                    <th style="width:60px;">번호</th>
-                    <th style="min-width:140px;">이름</th>
-                    <th style="width:90px;">성별</th>
-                    <th style="width:90px;">점수</th>
-                    <th style="min-width:240px;">특성(멀티선택)</th>
-                    <th style="min-width:140px;">쌍둥이그룹</th>
-                  </tr>
+	                  <tr>
+	                    <th style="width:60px;">번호</th>
+	                    <th style="min-width:140px;">이름</th>
+	                    <th style="width:110px;">성별</th>
+	                    <th style="width:120px;">점수</th>
+	                    <th style="min-width:160px;">특성(멀티선택)</th>
+	                    <th style="min-width:140px;">쌍둥이그룹</th>
+	                  </tr>
                 </thead>
                 <tbody id="sheetBody">
                   <tr><td colspan="6" style="color:var(--muted);">명렬표를 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>
@@ -1121,12 +1121,19 @@ function buildSheetFromRoster(){
   const ids = disambiguateNames(baseNames);
   const traitList = getTraitList();
 
+  const boys = new Set(splitLines($("boys")?.value || ""));
+  const girls = new Set(splitLines($("girls")?.value || ""));
+
   tbody.innerHTML = "";
 
   for (let i=0;i<ids.length;i++){
     const id = ids[i];
     const base = parsed[i].name;
-    const g0 = parsed[i].gender || "";
+    let g0 = parsed[i].gender || "";
+    if (!g0){
+      if (boys.has(base) || boys.has(id)) g0 = "남";
+      if (girls.has(base) || girls.has(id)) g0 = "여";
+    }
     const keep = prev.get(id);
 
     const tr = document.createElement("tr");
@@ -1162,7 +1169,8 @@ function buildSheetFromRoster(){
 
     const tdScore = document.createElement("td");
     const inpS = document.createElement("input");
-    inpS.type = "number";
+    inpS.type = "text";
+    inpS.inputMode = "numeric";
     inpS.dataset.sheet = "score";
     inpS.value = keep?.score || "";
     tdScore.appendChild(inpS);
@@ -1361,8 +1369,8 @@ function readInputs(){
       const gv = cleanLine(genderSel?.value || "");
       if (gv) st.gender = gv;
 
-      const sv = scoreInp?.value;
-      if (!(sv === "" || sv == null)) st.score = parseFloat(sv);
+      const sv = cleanLine(scoreInp?.value || "");
+      if (sv !== "") st.score = parseFloat(sv);
 
       const gname = cleanLine(sibInp?.value || "");
       st.sibGroup = gname || null;
