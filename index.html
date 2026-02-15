@@ -175,7 +175,8 @@
       padding:14px 14px 10px;
       border-bottom: 1px solid rgba(229, 231, 235, 0.9);
     }
-    .side-brand{display:flex; align-items:center; gap:10px;}
+    .side-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; cursor:pointer;}
+    .side-brand:focus-visible{outline:3px solid rgba(34,197,94,.35); outline-offset:4px; border-radius: 14px;}
     .side-mark{
       width:34px; height:34px; border-radius: 12px;
       background:
@@ -554,13 +555,13 @@
 <body>
   <aside id="sidebar" class="sidebar" aria-label="카테고리">
     <div class="side-head">
-      <div class="side-brand" aria-label="서비스">
+      <a class="side-brand" href="https://edu-tools.pages.dev/" target="_blank" rel="noreferrer" aria-label="Edu Tools 열기 (새 창)">
         <div class="side-mark" aria-hidden="true"></div>
         <div class="side-brand-text">
           <div class="side-app">Edu Tools</div>
           <div class="side-sub">업무 자동화 도우미</div>
         </div>
-      </div>
+      </a>
       <button id="navClose" class="icon-btn" type="button" aria-label="닫기">
         <span aria-hidden="true">×</span>
       </button>
