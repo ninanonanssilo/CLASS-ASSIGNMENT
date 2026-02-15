@@ -451,6 +451,8 @@
 	      border-bottom:1px solid var(--line);
 	      vertical-align:top;
 	    }
+	    /* Result key columns should not wrap into multiple lines */
+	    td.mono{white-space:nowrap;}
     th{
       text-align:left;
       color:var(--muted);
@@ -1958,8 +1960,8 @@ function render(classes, input){
               const keyHtml = (k)=>{
                 if (!k) return "";
                 const g = k.grade ? escapeHtml(k.grade) + "-" : "";
-                // show class-no on separate lines for easy scanning/alignment
-                return `${g}${escapeHtml(k.cls)}<br>${escapeHtml(k.no)}`;
+                // single-line for easier verification/printing
+                return `${g}${escapeHtml(k.cls)}-${escapeHtml(k.no)}`;
               };
 
               const left = (basis==="prev") ? prevKey : promoteKey;
