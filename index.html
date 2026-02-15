@@ -690,14 +690,41 @@
           </div>
         </div>
 
-        <div class="row">
-          <div class="field">
+        <div class="row" style="align-items:flex-end;">
+          <div class="field" style="flex:1;">
             <label>입력 방식</label>
             <select id="inputType">
               <option value="byClass">기존 반별로 입력(1반/2반/3반…)</option>
               <option value="single">전체 명렬표 1개로 입력</option>
             </select>
           </div>
+          <div class="field" style="max-width:260px;">
+            <label>번호 정렬</label>
+            <select id="numberingRule" style="width:100%;">
+              <option value="generated" selected>생성순(현재)</option>
+              <option value="name">이름순(가나다)</option>
+              <option value="genderStart">성별별 시작번호</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" id="genderStartOpts" style="display:none; align-items:flex-end;">
+          <div class="field" style="max-width:180px;">
+            <label>성별 순서</label>
+            <select id="genderOrder" style="width:100%;">
+              <option value="boysFirst" selected>남→여</option>
+              <option value="girlsFirst">여→남</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:180px;">
+            <label>남 시작번호</label>
+            <input id="startBoy" type="number" value="1" min="1" style="width:100%;" />
+          </div>
+          <div class="field" style="max-width:180px;">
+            <label>여 시작번호</label>
+            <input id="startGirl" type="number" value="41" min="1" style="width:100%;" />
+          </div>
+          <div class="hint" style="align-self:center; margin-top:18px;">성별 내 정렬: 이름순</div>
         </div>
 
         <div class="row">
@@ -884,35 +911,6 @@
 	                <option value="prev">이전반 기준</option>
 	              </select>
 	            </label>
-
-	            <label class="hint" style="display:flex; align-items:center; gap:6px; margin:0;">
-	              <span>번호 정렬</span>
-	              <select id="numberingRule" class="smallBtn" style="height:34px; padding:0 10px;">
-	                <option value="generated" selected>생성순(현재)</option>
-	                <option value="name">이름순(가나다)</option>
-	                <option value="genderStart">성별별 시작번호</option>
-	              </select>
-	            </label>
-
-	            <span id="genderStartOpts" class="hint" style="display:none; align-items:center; gap:8px; margin:0; flex-wrap:wrap;">
-	              <label style="display:flex; align-items:center; gap:6px;">
-	                <span>순서</span>
-	                <select id="genderOrder" class="smallBtn" style="height:34px; padding:0 10px;">
-	                  <option value="boysFirst" selected>남→여</option>
-	                  <option value="girlsFirst">여→남</option>
-	                </select>
-	              </label>
-	              <label style="display:flex; align-items:center; gap:6px;">
-	                <span>남 시작</span>
-	                <input id="startBoy" type="number" value="1" min="1" class="smallBtn" style="width:70px; height:34px; padding:0 10px;" />
-	              </label>
-	              <label style="display:flex; align-items:center; gap:6px;">
-	                <span>여 시작</span>
-	                <input id="startGirl" type="number" value="41" min="1" class="smallBtn" style="width:70px; height:34px; padding:0 10px;" />
-	              </label>
-	              <span style="color:var(--muted);">(성별 내에서는 이름순)</span>
-	            </span>
-
 	            <button id="btnCopy">결과 복사</button>
 	            <button id="btnSheets">구글 스프레드시트로 열기</button>
 	            <button id="btnCSV">CSV 다운로드</button>
