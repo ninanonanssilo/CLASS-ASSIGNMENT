@@ -2117,11 +2117,15 @@ $("btnCSV").onclick = ()=>{
   if (!last) return;
   const {classes, input} = last;
   const gradePrefix = input.grade ? `${input.grade}-` : "";
+  const gradeNum = parseInt(String(input.grade||""), 10);
+  const prevGrade = Number.isFinite(gradeNum) && gradeNum > 1 ? String(gradeNum - 1) : "";
+
   const rows = [[
     "기준",
+    "이전학년",
     "이전반",
     "이전번호",
-    "이전-반-번호",
+    "이전학년-반-번호",
     "학년",
     "반",
     "번호",
@@ -2143,11 +2147,13 @@ $("btnCSV").onclick = ()=>{
       const gcn = `${gradePrefix}${newClass}-${newNo}`;
       const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
       const twinLabel = ((input.twinPairs||[]).filter(p=>p.a===s.id||p.b===s.id).map(p=>p.name).join(", ") || (s.sibGroup||""));
+      const pgcn = (prevGrade && s.prevClass != null && s.prevNo != null) ? `${prevGrade}-${s.prevClass}-${s.prevNo}` : "";
       rows.push([
         input.grade ? "진급반 기준" : "현재반 기준",
+        prevGrade,
         s.prevClass ?? "",
         s.prevNo ?? "",
-        prev,
+        pgcn,
         g,
         String(newClass),
         String(newNo),
@@ -2173,13 +2179,16 @@ $("btnSheets").onclick = async ()=>{
   if (!last) return;
   const {classes, input} = last;
   const gradePrefix = input.grade ? `${input.grade}-` : "";
+  const gradeNum = parseInt(String(input.grade||""), 10);
+  const prevGrade = Number.isFinite(gradeNum) && gradeNum > 1 ? String(gradeNum - 1) : "";
 
   // Google Sheets paste works best with TSV.
   const rows = [[
     "기준",
+    "이전학년",
     "이전반",
     "이전번호",
-    "이전-반-번호",
+    "이전학년-반-번호",
     "학년",
     "반",
     "번호",
@@ -2201,12 +2210,14 @@ $("btnSheets").onclick = async ()=>{
       const g = input.grade || "";
       const gcn = `${gradePrefix}${newClass}-${newNo}`;
       const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
+      const pgcn = (prevGrade && s.prevClass != null && s.prevNo != null) ? `${prevGrade}-${s.prevClass}-${s.prevNo}` : "";
       const twinLabel = ((input.twinPairs||[]).filter(p=>p.a===s.id||p.b===s.id).map(p=>p.name).join(", ") || (s.sibGroup||""));
       rows.push([
         input.grade ? "진급반 기준" : "현재반 기준",
+        prevGrade,
         s.prevClass ?? "",
         s.prevNo ?? "",
-        prev,
+        pgcn,
         g,
         String(newClass),
         String(newNo),
