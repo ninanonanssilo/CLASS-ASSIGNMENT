@@ -341,6 +341,22 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="field">
+            <label>입력 방식</label>
+            <select id="inputType">
+              <option value="single">전체 명렬표 1개로 입력</option>
+              <option value="byClass">기존 반별로 입력(1반/2반/3반…)</option>
+            </select>
+          </div>
+          <div class="field" id="existingCountWrap" style="display:none;">
+            <label>기존 몇 개 반의 자료를 넣을까요? (N)</label>
+            <input id="existingCount" type="number" min="1" max="20" value="3" />
+          </div>
+        </div>
+
+        <div id="byClassArea" style="display:none; margin-top:6px;"></div>
+
         <div class="field">
           <label>학생 명렬표 (줄바꿈으로 구분)</label>
           <textarea id="roster" placeholder="예:
@@ -465,6 +481,47 @@ const $ = (id)=>document.getElementById(id);
 const cleanLine = (s)=>String(s||"").trim();
 const splitLines = (t)=>String(t||"").split(/\r?\n/).map(cleanLine).filter(Boolean);
 const uniq = (arr)=>Array.from(new Set(arr));
+
+function buildByClassInputs(){
+  const area = $("byClassArea");
+  const n = Math.max(1, Math.min(20, parseInt($("existingCount")?.value || "1", 10)));
+
+  area.innerHTML = "";
+  for (let i=1;i<=n;i++){
+    const div = document.createElement("div");
+    div.className = "field";
+    div.innerHTML = `
+      <label>기존 ${i}반 명렬표 (줄바꿈)</label>
+      <textarea data-existing-class="${i}" placeholder="예:\n홍길동\n김하나(여)\n남:박민수"></textarea>
+    `;
+    area.appendChild(div);
+  }
+}
+
+function readExistingClassRoster(){
+  const tas = Array.from(document.querySelectorAll('#byClassArea textarea[data-existing-class]'));
+  const all = [];
+  for (const ta of tas){
+    all.push(...splitLines(ta.value));
+  }
+  return all;
+}
+
+function syncInputTypeUI(){
+  const t = $("inputType")?.value || "single";
+  const show = (t === "byClass");
+  $("existingCountWrap").style.display = show ? "" : "none";
+  $("byClassArea").style.display = show ? "" : "none";
+  if (show) buildByClassInputs();
+}
+
+// UI toggle: single roster vs existing classes
+$("inputType").addEventListener("change", syncInputTypeUI);
+$("existingCount").addEventListener("input", ()=>{
+  if (($("inputType")?.value || "single") === "byClass") buildByClassInputs();
+});
+syncInputTypeUI();
+
 function hashSeed(str){
   // simple deterministic hash -> int
   let h = 2166136261>>>0;
@@ -568,7 +625,13 @@ function readInputs(){
   const sibRule = document.querySelector('input[name="sibRule"]:checked')?.value || "same";
 
   // roster
-  const rosterLines = splitLines($("roster").value);
+  let rosterLines = [];
+  const inputType = $("inputType") ? $("inputType").value : "single";
+  if (inputType === "byClass"){
+    rosterLines = readExistingClassRoster();
+  } else {
+    rosterLines = splitLines($("roster").value);
+  }
   if (rosterLines.length < k) throw new Error("학생 명렬표가 너무 적습니다. 최소 반 수(K) 이상 입력해 주세요.");
 
   // parse roster with optional gender
@@ -1088,6 +1151,10 @@ $("btnGenerate").onclick = ()=>{
 
 $("btnReset").onclick = ()=>{
   ["roster","boys","girls","scores","avoidPairs","siblings"].forEach(id=>$(id).value="");
+  $("inputType").value = "single";
+  $("existingCount").value = "3";
+  $("byClassArea").innerHTML = "";
+  syncInputTypeUI();
   $("traitNames").value="ADHD,기초학력,특수교육대상,상자,교우관계,사춘기";
   buildTraitsArea();
   setMsg("");
@@ -1097,6 +1164,8 @@ $("btnReset").onclick = ()=>{
 };
 
 $("btnExample").onclick = ()=>{
+  $("inputType").value = "single";
+  syncInputTypeUI();
   $("k").value = 4;
   $("seed").value = "2026-1";
   $("roster").value = `김하나(여)
