@@ -278,12 +278,12 @@
       font-size:16px;
     }
     .sub{margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6}
-    details.help{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.65);
-      border-radius: 16px;
-      padding:10px 12px;
-    }
+	    details.help{
+	      border:1px solid var(--line);
+	      background: rgba(255,255,255,.65);
+	      border-radius: 16px;
+	      padding:10px 12px;
+	    }
     details.help summary{
       cursor:pointer;
       font-weight:900;
@@ -292,15 +292,36 @@
     }
     details.help summary::-webkit-details-marker{display:none;}
     details.help .hint{margin-top:8px;}
-    .helpSteps{
-      margin:10px 0 0;
-      padding:0;
-      display:grid;
-      gap:6px;
-      color: var(--muted);
-      font-size:12px;
-      line-height:1.55;
-    }
+	    .helpSteps{
+	      margin:10px 0 0;
+	      padding:0;
+	      display:grid;
+	      gap:6px;
+	      color: var(--muted);
+	      font-size:12px;
+	      line-height:1.55;
+	    }
+
+	    /* label tags */
+	    .tag{
+	      display:inline-flex;
+	      align-items:center;
+	      height: 18px;
+	      padding: 0 8px;
+	      border-radius: 999px;
+	      border: 1px solid rgba(37, 99, 235, 0.18);
+	      background: rgba(37, 99, 235, 0.08);
+	      color: rgba(29, 78, 216, 0.95);
+	      font-size: 11px;
+	      font-weight: 900;
+	      letter-spacing: .2px;
+	      margin-left: 6px;
+	    }
+	    .tag.opt{
+	      border-color: rgba(107, 114, 128, 0.25);
+	      background: rgba(243, 244, 246, 0.85);
+	      color: rgba(55, 65, 81, 0.9);
+	    }
     .row{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -434,20 +455,47 @@
     }
     tr:last-child td{border-bottom:none}
 
-    /* Compact sheet + multi-select dropdown (trait picker) */
-    .sheetWrap{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff}
-    .sheetHead{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-      padding:10px 12px; background:rgba(241,245,249,.6); border-bottom:1px solid var(--line);
-    }
-    .sheetHead .hint{margin:0}
+	    /* Compact sheet + multi-select dropdown (trait picker) */
+	    .sheetWrap{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff}
+	    .sheetHead{
+	      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+	      padding:10px 12px; background:rgba(241,245,249,.6); border-bottom:1px solid var(--line);
+	    }
+	    .sheetHead .hint{margin:0}
+	    .sheetBadges{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;}
+	    .badgeMini{
+	      display:inline-flex;
+	      align-items:center;
+	      height:22px;
+	      padding:0 10px;
+	      border-radius:999px;
+	      border:1px solid rgba(37, 99, 235, 0.18);
+	      background: rgba(37, 99, 235, 0.06);
+	      color: rgba(29, 78, 216, 0.95);
+	      font-size:12px;
+	      font-weight:900;
+	    }
+	    .badgeMini.warn{
+	      border-color: rgba(239, 68, 68, 0.22);
+	      background: rgba(254, 242, 242, 0.9);
+	      color:#991b1b;
+	    }
 	    table.sheet{
 	      width:100%;
 	      border-collapse:collapse;
 	      font-size: clamp(12px, 3.1vw, 13px);
+	      min-width: 720px; /* avoid cramped columns on mobile; enable horizontal scroll */
 	    }
 	    table.sheet th, table.sheet td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle}
-    table.sheet th{background:rgba(241,245,249,.55); color:var(--muted); font-weight:700}
+	    table.sheet th{background:rgba(241,245,249,.55); color:var(--muted); font-weight:700}
+	    table.sheet thead th{
+	      position: sticky;
+	      top: 0;
+	      z-index: 3;
+	      background: rgba(241,245,249,.92);
+	      backdrop-filter: blur(6px);
+	    }
+	    tr.sheetMissing td{background: rgba(254, 242, 242, 0.55);}
 	    table.sheet td input:not([type="checkbox"]), table.sheet td select{
 	      width:100%;
 	      min-height:40px;
@@ -687,29 +735,29 @@
           <div class="hint">팁) 동명이인이 있으면 자동으로 <span class="mono">a/b/c</span>를 붙여 구분합니다.</div>
         </div>
 
-        <div class="row">
-          <div class="field">
-            <label>남학생 목록 (선택, 줄바꿈)</label>
-            <textarea id="boys" placeholder="예:
-박민수
-홍길동"></textarea>
-          </div>
-          <div class="field">
-            <label>여학생 목록 (선택, 줄바꿈)</label>
-            <textarea id="girls" placeholder="예:
-김하나
-이영희"></textarea>
-          </div>
-        </div>
+	        <div class="row">
+	          <div class="field">
+	            <label>남학생 목록 <span class="tag opt">선택</span></label>
+	            <textarea id="boys" placeholder="예:
+	박민수
+	홍길동"></textarea>
+	          </div>
+	          <div class="field">
+	            <label>여학생 목록 <span class="tag opt">선택</span></label>
+	            <textarea id="girls" placeholder="예:
+	김하나
+	이영희"></textarea>
+	          </div>
+	        </div>
 
-        <div class="field">
-          <label>점수/등수 (선택) — “이름 점수” 한 줄씩</label>
-          <textarea id="scores" placeholder="예:
-홍길동 87
-김하나 92
-박민수 75"></textarea>
-          <div class="hint">점수가 없으면 인원/성별/특성 중심으로만 균등화합니다.</div>
-        </div>
+	        <div class="field">
+	          <label>점수/등수 <span class="tag opt">선택</span></label>
+	          <textarea id="scores" placeholder="예:
+	홍길동 87
+	김하나 92
+	박민수 75"></textarea>
+	          <div class="hint">점수가 없으면 인원/성별/특성 중심으로만 균등화합니다.</div>
+	        </div>
 
         <div class="field">
           <label>특성 종류 (콤마로 나열)</label>
@@ -747,21 +795,21 @@
           </div>
         </div>
 
-        <div class="field">
-          <label>붙으면 안 되는 조합 (한 줄에 1쌍: “이름1 - 이름2”)</label>
-          <textarea id="avoidPairs" placeholder="예:
-홍길동 - 박민수
-김하나 - 이영희"></textarea>
-        </div>
+	        <div class="field">
+	          <label>붙으면 안 되는 조합 <span class="tag opt">선택</span></label>
+	          <textarea id="avoidPairs" placeholder="예:
+	홍길동 - 박민수
+	김하나 - 이영희"></textarea>
+	        </div>
 
         <div class="row">
-	          <div class="field">
-	            <label>쌍둥이 (선택, 한 줄에 1쌍: “이름1 - 이름2”)</label>
-	            <textarea id="siblings" placeholder="예:
-홍길동 - 홍길순
-김하나 - 김하나a"></textarea>
-              <div class="hint" style="margin-top:8px;">아래에서 각 쌍마다 <b>합반(같은 반)</b>/<b>분반(다른 반)</b>을 체크로 지정할 수 있습니다.</div>
-	          </div>
+		          <div class="field">
+		            <label>쌍둥이 <span class="tag opt">선택</span></label>
+		            <textarea id="siblings" placeholder="예:
+	홍길동 - 홍길순
+	김하나 - 김하나a"></textarea>
+	              <div class="hint" style="margin-top:8px;">아래에서 각 쌍마다 <b>합반(같은 반)</b>/<b>분반(다른 반)</b>을 체크로 지정할 수 있습니다.</div>
+		          </div>
             <div class="field">
               <label>쌍둥이 표</label>
               <div class="sheetWrap">
@@ -1121,12 +1169,20 @@ function buildSheetFromRoster(){
   const ids = disambiguateNames(baseNames);
   const traitList = getTraitList();
 
+  // Apply boys/girls lists as initial gender hints in the sheet UI.
+  const boys = new Set(splitLines($("boys")?.value || ""));
+  const girls = new Set(splitLines($("girls")?.value || ""));
+
   tbody.innerHTML = "";
 
   for (let i=0;i<ids.length;i++){
     const id = ids[i];
     const base = parsed[i].name;
-    const g0 = parsed[i].gender || "";
+    let g0 = parsed[i].gender || "";
+    if (!g0){
+      if (boys.has(base) || boys.has(id)) g0 = "남";
+      if (girls.has(base) || girls.has(id)) g0 = "여";
+    }
     const keep = prev.get(id);
 
     const tr = document.createElement("tr");
@@ -1360,6 +1416,7 @@ function readInputs(){
 
       const gv = cleanLine(genderSel?.value || "");
       if (gv) st.gender = gv;
+      // if sheet gender is empty, keep gender inferred from boys/girls lists or roster.
 
       const sv = scoreInp?.value;
       if (!(sv === "" || sv == null)) st.score = parseFloat(sv);
@@ -1685,9 +1742,9 @@ function render(classes, input){
     tabBtns.push(b);
   }
 
-  const traitNames = input.traitNames;
-  const buildClassCard = (idx)=>{
-    const cls = classes[idx];
+	  const traitNames = input.traitNames;
+	  const buildClassCard = (idx)=>{
+	    const cls = classes[idx];
     const sum = cls.reduce((a,s)=>a+(s.score??0),0);
     const m = cls.filter(s=>s.gender==="남").length;
     const f = cls.filter(s=>s.gender==="여").length;
@@ -1698,44 +1755,46 @@ function render(classes, input){
       ? traitCounts.map(([t,c])=>`${t} ${c}`).join(" · ")
       : "특성 표기 없음";
 
-    const wrap = document.createElement("div");
-    wrap.className = "classCard";
-    wrap.innerHTML = `
-      <div class="classTitle">
-        <div>${idx+1}반 <small>(인원 ${cls.length} · 남 ${m} / 여 ${f}${u?(" / 미상 "+u):""} · 점수합 ${sum.toFixed(1)})</small></div>
-        <small>${traitText}</small>
-      </div>
-      <div style="overflow:auto;">
-        <table>
-          <thead>
-            <tr>
-	              <th style="width:92px;">학년-반-번호</th>
-              <th>이름</th>
-              <th style="width:72px;">성별</th>
-              <th style="width:90px;">점수</th>
-              <th>특성</th>
-              <th style="width:120px;">쌍둥이그룹</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${cls.map((s,i)=>{
-              const tr = traitNames.filter(t=>s.traits.has(t)).join(", ");
-              return `
-                <tr>
-	                  <td>${escapeHtml((input.grade ? input.grade + "-" : "") + (idx+1) + "-" + (i+1))}</td>
-                  <td>${escapeHtml(s.display)}</td>
-                  <td>${s.gender||""}</td>
-                  <td>${s.score ?? ""}</td>
-                  <td>${escapeHtml(tr)}</td>
-                  <td>${escapeHtml(s.sibGroup||"")}</td>
-                </tr>`;
-            }).join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
-    return wrap;
-  }
+	    const wrap = document.createElement("div");
+	    wrap.className = "classCard";
+	    const noHeader = input.grade ? "학년-반-번호" : "반-번호";
+	    wrap.innerHTML = `
+	      <div class="classTitle">
+	        <div>${idx+1}반 <small>(인원 ${cls.length} · 남 ${m} / 여 ${f}${u?(" / 미상 "+u):""} · 점수합 ${sum.toFixed(1)})</small></div>
+	        <small>${traitText}</small>
+	      </div>
+	      <div style="overflow:auto;">
+	        <table>
+	          <thead>
+	            <tr>
+	              <th style="width:110px;">${noHeader}</th>
+	              <th>이름</th>
+	              <th style="width:72px;">성별</th>
+	              <th style="width:90px;">점수</th>
+	              <th>특성</th>
+	              <th style="width:120px;">쌍둥이그룹</th>
+	            </tr>
+	          </thead>
+	          <tbody>
+	            ${cls.map((s,i)=>{
+	              const tr = traitNames.filter(t=>s.traits.has(t)).join(", ");
+	              const no = input.grade ? `${input.grade}-${idx+1}-${i+1}` : `${idx+1}-${i+1}`;
+	              return `
+	                <tr>
+	                  <td>${escapeHtml(no)}</td>
+	                  <td>${escapeHtml(s.display)}</td>
+	                  <td>${s.gender||""}</td>
+	                  <td>${s.score ?? ""}</td>
+	                  <td>${escapeHtml(tr)}</td>
+	                  <td>${escapeHtml(s.sibGroup||"")}</td>
+	                </tr>`;
+	            }).join("")}
+	          </tbody>
+	        </table>
+	      </div>
+	    `;
+	    return wrap;
+	  }
 
   function showAll(){
     tables.innerHTML = "";
@@ -1960,6 +2019,10 @@ $("btnExample").onclick = ()=>{
   $("traitNames").value = "ADHD,기초학력,특수교육대상,교우관계";
   buildTwinsTable();
   buildSheetFromRoster();
+
+  // Example gender lists (optional input method)
+  $("boys").value = `홍길동\n박민수\n최서준\n오민재\n장도윤\n윤지호\n한시우`;
+  $("girls").value = `김하나\n이영희\n정지우\n유서연\n서하린\n배하은\n조아라`;
 
   // Fill a few traits in the sheet to demonstrate the dropdown UX.
   const traitMap = new Map([
