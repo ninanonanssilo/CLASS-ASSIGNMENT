@@ -42,17 +42,7 @@
 	      --ctl-pad-x: clamp(10px, 2.6vw, 14px);
 	    }
 
-	    html[data-theme="dark"]{ color-scheme: dark; }
-	    html[data-theme="dark"]:root{
-	      --bg:#0b1220;
-	      --card: rgba(255,255,255,0.06);
-	      --ink: rgba(255,255,255,0.92);
-	      --muted: rgba(255,255,255,0.70);
-	      --line: rgba(255,255,255,0.14);
-	      --soft: rgba(255,255,255,0.06);
-	      --mint: rgba(52,211,153,0.14);
-	      --shadow: 0 18px 40px rgba(0,0,0,0.45);
-	    }
+	    /* 다크모드 제거: 밝은 모드 고정 */
 
     *{box-sizing:border-box}
     input, textarea, select, button{
@@ -682,7 +672,7 @@
         <span class="bar"></span>
         <span class="bar"></span>
       </button>
-      <button id="themeToggle" class="nav-toggle" type="button" aria-label="테마 전환" style="width:42px;">🌓</button>
+      <!-- 테마 토글 제거: 밝은 모드 고정 -->
       <div class="hero">
         <div class="hero-top">
           <h1 class="title">반편성 생성기</h1>
@@ -988,29 +978,7 @@
 /* ========= Helpers ========= */
 const $ = (id)=>document.getElementById(id);
 
-// Theme (light/dark) - stored per site
-(function initTheme(){
-  const KEY = "eduTools:theme";
-  const saved = localStorage.getItem(KEY);
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
-  document.documentElement.dataset.theme = theme;
-  const btn = $("themeToggle");
-  if (!btn) return;
-  const setLabel = ()=>{
-    const t = document.documentElement.dataset.theme || 'light';
-    btn.setAttribute('aria-label', t === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환');
-  };
-  setLabel();
-  btn.addEventListener('click', ()=>{
-    const cur = document.documentElement.dataset.theme || 'light';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    localStorage.setItem(KEY, next);
-    setLabel();
-    if (last) render(last.classes, last.input);
-  });
-})();
+// Theme: 밝은 모드 고정 (요청에 따라 다크모드 제거)
 const cleanLine = (s)=>String(s||"").trim();
 const splitLines = (t)=>String(t||"").split(/\r?\n/).map(cleanLine).filter(Boolean);
 const uniq = (arr)=>Array.from(new Set(arr));
