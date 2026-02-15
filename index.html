@@ -720,7 +720,7 @@
 김하나
 박민수
 이영희"></textarea>
-          <div class="hint">팁) 동명이인이 있으면 자동으로 <span class="mono">a/b/c</span>를 붙여 구분합니다.</div>
+          <div class="hint">팁) 동명이인이 있으면 자동으로 <span class="mono">(2)</span>, <span class="mono">(3)</span>처럼 번호를 붙여 구분합니다.</div>
         </div>
 
         <div class="row">
@@ -2150,7 +2150,7 @@ $("btnExample").onclick = ()=>{
   const rows = Array.from(document.querySelectorAll("#sheetBody tr[data-student-id]"));
   for (const r of rows){
     const id = r.dataset.studentId || "";
-    const base = id.replace(/[a-z]$/,"");
+    const base = id.replace(/\(\d+\)\s*$/," ").replace(/[a-z]$/," ").trim();
     const want = traitMap.get(base);
     if (!want) continue;
     const checks = Array.from(r.querySelectorAll('input[type="checkbox"][data-sheet-trait]'));
