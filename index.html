@@ -32,6 +32,10 @@
     }
 
     *{box-sizing:border-box}
+    input, textarea, select, button{
+      font: inherit;
+      font-size: 16px; /* iOS input auto-zoom prevention */
+    }
     body{
       margin:0;
       font-family: "Paperlogy", "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -658,9 +662,9 @@
           <label>학생 명렬표 (줄바꿈으로 구분)</label>
           <textarea id="roster" placeholder="예:
 홍길동
-김하나(여)
-남:박민수
-이영희,여"></textarea>
+김하나
+박민수
+이영희"></textarea>
           <div class="hint">팁) 동명이인이 있으면 자동으로 <span class="mono">a/b/c</span>를 붙여 구분합니다.</div>
         </div>
 
@@ -690,7 +694,7 @@
 
         <div class="field">
           <label>특성 종류 (콤마로 나열)</label>
-          <input id="traitNames" type="text" value="ADHD,기초학력,특수교육대상,상자,교우관계,사춘기" />
+          <input id="traitNames" type="text" value="ADHD,기초학력,특수교육대상,교우관계,사춘기" />
           <div class="hint">아래 학생 표에서 각 학생의 특성을 드롭다운으로 선택합니다.</div>
         </div>
 
@@ -733,10 +737,10 @@
 
         <div class="row">
           <div class="field">
-            <label>쌍둥이 그룹 (선택) — “그룹명: 이름1, 이름2 …”</label>
+            <label>쌍둥이 (선택, 한 줄에 1쌍: “이름1 - 이름2”)</label>
             <textarea id="siblings" placeholder="예:
-A가족: 홍길동, 홍길순
-쌍둥이1: 김하나, 김하나a"></textarea>
+홍길동 - 홍길순
+김하나 - 김하나a"></textarea>
           </div>
 	          <div class="field">
 	            <label>쌍둥이 규칙</label>
@@ -838,7 +842,7 @@ function buildByClassInputs(){
     div.className = "field";
     div.innerHTML = `
       <label>기존 ${i}반 명렬표 (줄바꿈)</label>
-      <textarea data-existing-class="${i}" placeholder="예:\n홍길동\n김하나(여)\n남:박민수"></textarea>
+      <textarea data-existing-class="${i}" placeholder="예:\n홍길동\n김하나\n박민수"></textarea>
     `;
     area.appendChild(div);
   }
@@ -1140,6 +1144,7 @@ function readInputs(){
   const k = Math.max(2, Math.min(20, parseInt($("k").value||"4",10)));
   // seed: internal only (user input removed)
   const seed = String(Date.now());
+  const grade = cleanLine($("grade")?.value || "");
   const priority = document.querySelector('input[name="priority"]:checked')?.value || "gender";
   const sibRule = cleanLine($("sibRuleSelect")?.value || "") || "same";
 
@@ -1245,26 +1250,52 @@ function readInputs(){
     }
   }
 
-  // sibling groups (from textarea, then recomputed from final st.sibGroup values incl. sheet column)
-  const sibLines = splitLines($("siblings").value);
-  for (const line of sibLines){
-    const m = line.match(/^(.+?)\s*[:：]\s*(.+)$/);
-    if (!m) continue;
-    const gname = cleanLine(m[1]);
-    const membersRaw = m[2].split(/,|，/).map(cleanLine).filter(Boolean);
-    const members = [];
-    for (const nm of membersRaw){
-      const ids2 = resolveToIds(nm, nameMap);
-      if (!ids2) continue;
-      members.push(...ids2);
-    }
-    const uniqMembers = uniq(members);
-    if (uniqMembers.length>=2){
-      for (const sid of uniqMembers){
-        const st = students.find(s=>s.id===sid);
-        // if sheet provided a group, keep it; otherwise apply textarea group
-        if (st && !st.sibGroup) st.sibGroup = gname;
+  // twins groups (textarea): one pair per line, "이름1 - 이름2"
+  // Merge connected pairs into a group (union-find).
+  const twinLines = splitLines($("siblings").value);
+  const parent = new Map();
+  function find(x){
+    const p = parent.get(x) ?? x;
+    if (p === x) return x;
+    const r = find(p);
+    parent.set(x, r);
+    return r;
+  }
+  function unite(a, b){
+    const ra = find(a), rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  }
+  for (const line of twinLines){
+    const parts = line.split("-").map(cleanLine);
+    if (parts.length < 2) continue;
+    const a = parts[0], b = parts[1];
+    const ida = resolveToIds(a, nameMap);
+    const idb = resolveToIds(b, nameMap);
+    if (!ida || !idb) continue;
+    for (const x of ida){
+      for (const y of idb){
+        if (x === y) continue;
+        parent.set(x, parent.get(x) ?? x);
+        parent.set(y, parent.get(y) ?? y);
+        unite(x, y);
       }
+    }
+  }
+  const groups = new Map();
+  for (const id of parent.keys()){
+    const r = find(id);
+    if (!groups.has(r)) groups.set(r, []);
+    groups.get(r).push(id);
+  }
+  let gidx = 1;
+  for (const members of groups.values()){
+    const uniqMembers = uniq(members);
+    if (uniqMembers.length < 2) continue;
+    const gname = `쌍둥이${gidx++}`;
+    for (const sid of uniqMembers){
+      const st = students.find(s=>s.id===sid);
+      // if sheet provided a group, keep it; otherwise apply textarea group
+      if (st && !st.sibGroup) st.sibGroup = gname;
     }
   }
 
@@ -1282,7 +1313,7 @@ function readInputs(){
   }
 
   const traitNames = splitLines($("traitNames").value.replace(/,/g,"\n"));
-  return {k, seed, priority, sibRule, students, traitNames, sibGroups};
+  return {k, seed, grade, priority, sibRule, students, traitNames, sibGroups};
 }
 
 /* ========= Scoring / penalty ========= */
@@ -1542,7 +1573,7 @@ function render(classes, input){
         <table>
           <thead>
             <tr>
-              <th style="width:72px;">번호</th>
+	              <th style="width:92px;">학년-반-번호</th>
               <th>이름</th>
               <th style="width:72px;">성별</th>
               <th style="width:90px;">점수</th>
@@ -1555,7 +1586,7 @@ function render(classes, input){
               const tr = traitNames.filter(t=>s.traits.has(t)).join(", ");
               return `
                 <tr>
-                  <td>${i+1}</td>
+	                  <td>${escapeHtml((input.grade ? input.grade + "-" : "") + (idx+1) + "-" + (i+1))}</td>
                   <td>${escapeHtml(s.display)}</td>
                   <td>${s.gender||""}</td>
                   <td>${s.score ?? ""}</td>
@@ -1696,7 +1727,7 @@ $("btnReset").onclick = ()=>{
   $("existingCount").value = "3";
   $("byClassArea").innerHTML = "";
   syncInputTypeUI();
-  $("traitNames").value="ADHD,기초학력,특수교육대상,상자,교우관계,사춘기";
+  $("traitNames").value="ADHD,기초학력,특수교육대상,교우관계,사춘기";
   $("sibRuleSelect").value = "same";
   $("sheetBody").innerHTML = `<tr><td colspan="6" style="color:var(--muted);">명렬표를 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
   setMsg("");
