@@ -884,6 +884,35 @@
 	                <option value="prev">이전반 기준</option>
 	              </select>
 	            </label>
+
+	            <label class="hint" style="display:flex; align-items:center; gap:6px; margin:0;">
+	              <span>번호 정렬</span>
+	              <select id="numberingRule" class="smallBtn" style="height:34px; padding:0 10px;">
+	                <option value="generated" selected>생성순(현재)</option>
+	                <option value="name">이름순(가나다)</option>
+	                <option value="genderStart">성별별 시작번호</option>
+	              </select>
+	            </label>
+
+	            <span id="genderStartOpts" class="hint" style="display:none; align-items:center; gap:8px; margin:0; flex-wrap:wrap;">
+	              <label style="display:flex; align-items:center; gap:6px;">
+	                <span>순서</span>
+	                <select id="genderOrder" class="smallBtn" style="height:34px; padding:0 10px;">
+	                  <option value="boysFirst" selected>남→여</option>
+	                  <option value="girlsFirst">여→남</option>
+	                </select>
+	              </label>
+	              <label style="display:flex; align-items:center; gap:6px;">
+	                <span>남 시작</span>
+	                <input id="startBoy" type="number" value="1" min="1" class="smallBtn" style="width:70px; height:34px; padding:0 10px;" />
+	              </label>
+	              <label style="display:flex; align-items:center; gap:6px;">
+	                <span>여 시작</span>
+	                <input id="startGirl" type="number" value="41" min="1" class="smallBtn" style="width:70px; height:34px; padding:0 10px;" />
+	              </label>
+	              <span style="color:var(--muted);">(성별 내에서는 이름순)</span>
+	            </span>
+
 	            <button id="btnCopy">결과 복사</button>
 	            <button id="btnSheets">구글 스프레드시트로 열기</button>
 	            <button id="btnCSV">CSV 다운로드</button>
@@ -1763,6 +1792,56 @@ function render(classes, input){
   tabs.innerHTML = "";
   tables.innerHTML = "";
 
+  // Numbering / ordering options (display-only; assignment itself is unchanged)
+  const numberingRule = $("numberingRule")?.value || "generated";
+  const genderOrder = $("genderOrder")?.value || "boysFirst";
+  const startBoy = Math.max(1, parseInt($("startBoy")?.value || "1", 10) || 1);
+  const startGirl = Math.max(1, parseInt($("startGirl")?.value || "41", 10) || 41);
+
+  const nameKey = (s)=>cleanLine(s.baseName || s.display || s.id || "");
+  const nameCmp = (a,b)=>{
+    const na = nameKey(a), nb = nameKey(b);
+    const c = na.localeCompare(nb, "ko-KR");
+    if (c) return c;
+    return String(a.id||"").localeCompare(String(b.id||""));
+  };
+
+  function orderAndNumber(cls){
+    let ordered = cls;
+
+    if (numberingRule === "name"){
+      ordered = cls.slice().sort(nameCmp);
+    } else if (numberingRule === "genderStart"){
+      const boys = cls.filter(s=>s.gender==="남").slice().sort(nameCmp);
+      const girls = cls.filter(s=>s.gender==="여").slice().sort(nameCmp);
+      const unknown = cls.filter(s=>!s.gender || (s.gender!=="남" && s.gender!=="여")).slice().sort(nameCmp);
+      ordered = (genderOrder === "girlsFirst")
+        ? girls.concat(boys, unknown)
+        : boys.concat(girls, unknown);
+    }
+
+    const noMap = new Map();
+    if (numberingRule === "genderStart"){
+      let b = startBoy;
+      let g = startGirl;
+      for (const s of ordered){
+        if (s.gender === "남") noMap.set(s.id, String(b++));
+        else if (s.gender === "여") noMap.set(s.id, String(g++));
+      }
+      // Unknown gender: continue after the larger end to avoid collisions.
+      const endB = b - 1;
+      const endG = g - 1;
+      let u = Math.max(endB, endG) + 1;
+      for (const s of ordered){
+        if (!noMap.has(s.id)) noMap.set(s.id, String(u++));
+      }
+    } else {
+      for (let i=0;i<ordered.length;i++) noMap.set(ordered[i].id, String(i+1));
+    }
+
+    return {ordered, noMap};
+  }
+
   // summary tab + each class tab (simple filter)
   const tabBtns = [];
   function addTab(label, onClick, active=false){
@@ -1788,6 +1867,8 @@ function render(classes, input){
 
   const buildClassCard = (idx)=>{
     const cls = classes[idx];
+    const {ordered, noMap} = orderAndNumber(cls);
+
     const sum = cls.reduce((a,s)=>a+(s.score??0),0);
     const m = cls.filter(s=>s.gender==="남").length;
     const f = cls.filter(s=>s.gender==="여").length;
@@ -1824,13 +1905,13 @@ function render(classes, input){
             </tr>
           </thead>
           <tbody>
-            ${cls.map((s,i)=>{
+            ${ordered.map((s,i)=>{
               const tr = traitNames.filter(t=>s.traits.has(t)).join(", ");
 
               const promoteKey = {
                 grade: promoteGrade,
                 cls: String(idx+1),
-                no: String(i+1),
+                no: String(noMap.get(s.id) || (i+1)),
               };
               const prevKey = (s.prevClass!=null && s.prevNo!=null)
                 ? {
@@ -1912,6 +1993,51 @@ function toast(msg, ms=1800){
 /* ========= Copy / CSV ========= */
 let last = null;
 
+function getNumberingSettings(){
+  const rule = $("numberingRule")?.value || "generated";
+  const genderOrder = $("genderOrder")?.value || "boysFirst";
+  const startBoy = Math.max(1, parseInt($("startBoy")?.value || "1", 10) || 1);
+  const startGirl = Math.max(1, parseInt($("startGirl")?.value || "41", 10) || 41);
+  return {rule, genderOrder, startBoy, startGirl};
+}
+
+function orderAndNumberForExport(cls, settings){
+  const {rule, genderOrder, startBoy, startGirl} = settings;
+  const nameKey = (s)=>cleanLine(s.baseName || s.display || s.id || "");
+  const nameCmp = (a,b)=>{
+    const na = nameKey(a), nb = nameKey(b);
+    const c = na.localeCompare(nb, "ko-KR");
+    if (c) return c;
+    return String(a.id||"").localeCompare(String(b.id||""));
+  };
+
+  let ordered = cls;
+  if (rule === "name") ordered = cls.slice().sort(nameCmp);
+  else if (rule === "genderStart"){
+    const boys = cls.filter(s=>s.gender==="남").slice().sort(nameCmp);
+    const girls = cls.filter(s=>s.gender==="여").slice().sort(nameCmp);
+    const unknown = cls.filter(s=>!s.gender || (s.gender!=="남" && s.gender!=="여")).slice().sort(nameCmp);
+    ordered = (genderOrder === "girlsFirst") ? girls.concat(boys, unknown) : boys.concat(girls, unknown);
+  }
+
+  const noMap = new Map();
+  if (rule === "genderStart"){
+    let b = startBoy, g = startGirl;
+    for (const s of ordered){
+      if (s.gender === "남") noMap.set(s.id, String(b++));
+      else if (s.gender === "여") noMap.set(s.id, String(g++));
+    }
+    let u = Math.max(b-1, g-1) + 1;
+    for (const s of ordered){
+      if (!noMap.has(s.id)) noMap.set(s.id, String(u++));
+    }
+  } else {
+    for (let i=0;i<ordered.length;i++) noMap.set(ordered[i].id, String(i+1));
+  }
+
+  return {ordered, noMap};
+}
+
 $("btnCopy").onclick = ()=>{
   if (!last) return;
   const {classes, input} = last;
@@ -1921,11 +2047,14 @@ $("btnCopy").onclick = ()=>{
   const prioText = (Array.isArray(input.priorityOrder) ? input.priorityOrder : []).map(prioLabel).join(" > ");
   out.push(`반 수=${input.k}, 우선순위=${prioText || prioLabel(input.priority)}`);
   out.push("");
+  const settings = getNumberingSettings();
   classes.forEach((cls, idx)=>{
     out.push(`${idx+1}반`);
-      cls.forEach((s,i)=>{
-        const traits = input.traitNames.filter(t=>s.traits.has(t)).join(",");
-      out.push(`${i+1}\t${s.display}\t${s.gender||""}\t${s.score??""}\t${traits}\t${s.sibGroup||""}`);
+    const {ordered, noMap} = orderAndNumberForExport(cls, settings);
+    ordered.forEach((s,i)=>{
+      const no = noMap.get(s.id) || String(i+1);
+      const traits = input.traitNames.filter(t=>s.traits.has(t)).join(",");
+      out.push(`${no}\t${s.display}\t${s.gender||""}\t${s.score??""}\t${traits}\t${s.sibGroup||""}`);
     });
     out.push("");
   });
@@ -1951,11 +2080,13 @@ $("btnCSV").onclick = ()=>{
     "특성",
     "쌍둥이그룹",
   ]];
+  const settings = getNumberingSettings();
   classes.forEach((cls, idx)=>{
-    cls.forEach((s,i)=>{
+    const {ordered, noMap} = orderAndNumberForExport(cls, settings);
+    ordered.forEach((s,i)=>{
       const traits = input.traitNames.filter(t=>s.traits.has(t)).join("|");
       const newClass = idx+1;
-      const newNo = i+1;
+      const newNo = parseInt(noMap.get(s.id) || String(i+1), 10) || (i+1);
       const g = input.grade || "";
       const gcn = `${gradePrefix}${newClass}-${newNo}`;
       const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
@@ -2007,11 +2138,13 @@ $("btnSheets").onclick = async ()=>{
     "쌍둥이그룹",
   ]];
 
+  const settings = getNumberingSettings();
   classes.forEach((cls, idx)=>{
-    cls.forEach((s,i)=>{
+    const {ordered, noMap} = orderAndNumberForExport(cls, settings);
+    ordered.forEach((s,i)=>{
       const traits = input.traitNames.filter(t=>s.traits.has(t)).join("|");
       const newClass = idx+1;
-      const newNo = i+1;
+      const newNo = parseInt(noMap.get(s.id) || String(i+1), 10) || (i+1);
       const g = input.grade || "";
       const gcn = `${gradePrefix}${newClass}-${newNo}`;
       const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
@@ -2098,9 +2231,24 @@ $("btnGenerate").onclick = ()=>{
   }
 };
 
+function syncResultControls(){
+  const rule = $("numberingRule")?.value || "generated";
+  const box = $("genderStartOpts");
+  if (box) box.style.display = (rule === "genderStart") ? "flex" : "none";
+}
+
 $("resultBasis")?.addEventListener("change", ()=>{
   if (last) render(last.classes, last.input);
 });
+$("numberingRule")?.addEventListener("change", ()=>{
+  syncResultControls();
+  if (last) render(last.classes, last.input);
+});
+$("genderOrder")?.addEventListener("change", ()=>{ if (last) render(last.classes, last.input); });
+$("startBoy")?.addEventListener("input", ()=>{ if (last) render(last.classes, last.input); });
+$("startGirl")?.addEventListener("input", ()=>{ if (last) render(last.classes, last.input); });
+
+syncResultControls();
 
 $("btnReset").onclick = ()=>{
   ["roster","boys","girls","scores","avoidPairs","siblings"].forEach(id=>$(id).value="");
