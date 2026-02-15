@@ -383,6 +383,17 @@
     .resultHead{
       display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
       margin-bottom:10px;
+
+      position: sticky;
+      top: 10px;
+      z-index: 5;
+      padding: 10px;
+      margin: -10px -10px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      box-shadow: 0 10px 24px rgba(17, 24, 39, 0.06);
     }
     .hint{
       color:var(--muted);
@@ -542,7 +553,30 @@
       color:#991b1b;
       font-size:12px;
       line-height:1.55;
+      white-space: pre-wrap;
       display:none;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 9999;
+      max-width: min(92vw, 560px);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.92);
+      color: #fff;
+      font-size: 13px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
     }
     .ok{
       border-color: rgba(34,197,94,.25);
@@ -553,6 +587,7 @@
 </head>
 
 <body>
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <aside id="sidebar" class="sidebar" aria-label="카테고리">
     <div class="side-head">
       <a class="side-brand" href="https://edu-tools.pages.dev/" target="_blank" rel="noreferrer" aria-label="Edu Tools 열기 (새 창)">
@@ -991,15 +1026,15 @@ function parseNameGender(raw){
   return {name:s, gender:null};
 }
 function disambiguateNames(names){
-  // same name -> namea, nameb, namec...
+  // same name -> 이름(2), 이름(3)... (avoid confusing a/b suffix; easier to match/communicate)
   const count = {};
   const out = [];
   for (const n of names){
-    count[n] = (count[n]||0)+1;
-    if (count[n]===1){ out.push(n); }
+    const base = cleanLine(n);
+    count[base] = (count[base]||0)+1;
+    if (count[base]===1){ out.push(base); }
     else{
-      const suffix = String.fromCharCode(95 + count[n]); // 2->a, 3->b ...
-      out.push(n + suffix);
+      out.push(`${base}(${count[base]})`);
     }
   }
   return out;
@@ -1018,9 +1053,14 @@ function resolveToIds(name, nameMap){
   // if exact id exists, use it; else if base exists and only one, use it; else null
   if (nameMap.__idSet && nameMap.__idSet.has(name)) return [name];
   if (nameMap.has(name) && nameMap.get(name).length===1) return [nameMap.get(name)[0]];
-  // try strip trailing a/b/c (동명이인)
-  const base = name.replace(/[a-z]$/,'');
-  if (nameMap.has(base) && nameMap.get(base).length===1) return [nameMap.get(base)[0]];
+
+  // try normalize "홍길동(2)" -> "홍길동"
+  const base1 = name.replace(/\(\d+\)\s*$/,'');
+  if (nameMap.has(base1) && nameMap.get(base1).length===1) return [nameMap.get(base1)[0]];
+
+  // legacy: strip trailing a/b/c (동명이인)
+  const base2 = base1.replace(/[a-z]$/,'');
+  if (nameMap.has(base2) && nameMap.get(base2).length===1) return [nameMap.get(base2)[0]];
   return null;
 }
 function downloadText(filename, text, mime){
@@ -1369,7 +1409,7 @@ function readInputs(){
     const nm = cleanLine(m[1]);
     const val = parseFloat(m[2]);
     const ids2 = resolveToIds(nm, nameMap);
-    if (!ids2) continue;
+    if (!ids2) { issues.push(`점수 매칭 실패: ${nm}`); continue; }
     for (const sid of ids2){
       const st = students.find(x=>x.id===sid);
       if (st) st.score = val;
@@ -1410,7 +1450,7 @@ function readInputs(){
     const a = parts[0], b = parts[1];
     const ida = resolveToIds(a, nameMap);
     const idb = resolveToIds(b, nameMap);
-    if (!ida || !idb) continue;
+    if (!ida || !idb) { issues.push(`금지 조합 매칭 실패: ${a} - ${b}`); continue; }
     for (const x of ida){
       for (const y of idb){
         if (x===y) continue;
@@ -1452,7 +1492,7 @@ function readInputs(){
     if (!rawA || !rawB) continue;
     const ida = resolveToIds(rawA, nameMap);
     const idb = resolveToIds(rawB, nameMap);
-    if (!ida || !idb) continue;
+    if (!ida || !idb) { issues.push(`쌍둥이 매칭 실패: ${rawA} - ${rawB}`); continue; }
 
     const same = !!r.querySelector('input[data-twin-rule="same"]')?.checked;
     const diff = !!r.querySelector('input[data-twin-rule="diff"]')?.checked;
@@ -1504,6 +1544,17 @@ function readInputs(){
   }
 
   const traitNames = splitLines($("traitNames").value.replace(/,/g,"\n"));
+
+  // Surface matching issues early so users can fix inputs.
+  if (issues.length){
+    setMsg(
+      `입력에서 이름 매칭이 안 된 항목이 있습니다.\n- ` +
+        issues.slice(0, 12).join("\n- ") +
+        (issues.length>12 ? `\n... 외 ${issues.length-12}개` : ""),
+      false
+    );
+  }
+
   return {k, seed, mode, grade, priority, priorityOrder, students, traitNames, sibGroups};
 }
 
@@ -1797,6 +1848,17 @@ function escapeHtml(s){
     .replaceAll("'","&#039;");
 }
 
+function toast(msg, ms=1800){
+  const el = $("toast");
+  if (!el) return;
+  const m = cleanLine(msg);
+  if (!m) return;
+  el.textContent = m;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>el.classList.remove("show"), Math.max(700, ms|0));
+}
+
 /* ========= Copy / CSV ========= */
 let last = null;
 
@@ -1817,7 +1879,7 @@ $("btnCopy").onclick = ()=>{
     });
     out.push("");
   });
-  navigator.clipboard.writeText(out.join("\n")).catch(()=>{});
+  navigator.clipboard.writeText(out.join("\n")).then(()=>toast("결과를 복사했습니다."), ()=>toast("복사에 실패했습니다. 브라우저 권한을 확인하세요.", 2400));
 };
 
 $("btnCSV").onclick = ()=>{
