@@ -33,6 +33,7 @@
 
 	      /* responsive sizing */
 	      --fs: clamp(14px, 3.7vw, 16px);
+	      --fs-scale: 1;
 	      --pad-wrap-x: clamp(14px, 4vw, 18px);
 	      --pad-card: clamp(12px, 3.6vw, 16px);
 	      --ctl-h: clamp(38px, 10vw, 44px);
@@ -52,7 +53,7 @@
 	      color:var(--ink);
 	      word-break: keep-all;
 	      overflow-wrap: break-word;
-	      font-size: var(--fs);
+	      font-size: calc(var(--fs) * var(--fs-scale));
 	    }
 
     a{color:inherit; text-decoration:none}
@@ -682,8 +683,8 @@
         학생 명렬표를 <b>그대로 붙여넣기</b> 하면, 점수/남녀/특성/금지조합/쌍둥이 규칙을 반영해
         <b>자동으로 반편성</b>을 생성합니다. (개인정보는 최소화해서 사용하세요.)
       </p>
-      <div style="margin-top:12px;">
-        <details class="help">
+      <div style="margin-top:12px; display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
+        <details class="help" style="flex:1; min-width:min(520px, 100%);">
           <summary>사용 안내</summary>
           <div class="hint">
             <div class="helpSteps">
@@ -694,6 +695,16 @@
             </div>
           </div>
         </details>
+
+        <div class="help" style="padding:10px 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div style="font-weight:900;">글씨 크기</div>
+          <div class="btns" style="margin:0;">
+            <button type="button" class="smallBtn" id="btnFontDown" aria-label="글씨 크기 줄이기">A-</button>
+            <button type="button" class="smallBtn" id="btnFontReset" aria-label="글씨 크기 기본값">기본</button>
+            <button type="button" class="smallBtn" id="btnFontUp" aria-label="글씨 크기 키우기">A+</button>
+          </div>
+          <div class="hint" id="fontSizeLabel" style="margin:0;">100%</div>
+        </div>
       </div>
     </div>
 
@@ -2313,7 +2324,33 @@ $("genderOrder")?.addEventListener("change", ()=>{ if (last) render(last.classes
 $("startBoy")?.addEventListener("input", ()=>{ if (last) render(last.classes, last.input); });
 $("startGirl")?.addEventListener("input", ()=>{ if (last) render(last.classes, last.input); });
 
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+function applyFontScale(scale, {save=true}={}){
+  const s = clamp(Number(scale)||1, 0.85, 1.35);
+  document.documentElement.style.setProperty('--fs-scale', String(s));
+  const label = $("fontSizeLabel");
+  if (label) label.textContent = `${Math.round(s*100)}%`;
+  if (save) localStorage.setItem('classAssign:fsScale', String(s));
+}
+function loadFontScale(){
+  const v = localStorage.getItem('classAssign:fsScale');
+  if (v) applyFontScale(parseFloat(v), {save:false});
+  else applyFontScale(1, {save:false});
+}
+
+$("btnFontDown")?.addEventListener("click", ()=>{
+  const cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs-scale')) || 1;
+  applyFontScale(cur - 0.07);
+});
+$("btnFontUp")?.addEventListener("click", ()=>{
+  const cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs-scale')) || 1;
+  applyFontScale(cur + 0.07);
+});
+$("btnFontReset")?.addEventListener("click", ()=>applyFontScale(1));
+
 syncResultControls();
+loadFontScale();
 
 $("btnReset").onclick = ()=>{
   ["roster","boys","girls","scores","avoidPairs","siblings"].forEach(id=>$(id).value="");
