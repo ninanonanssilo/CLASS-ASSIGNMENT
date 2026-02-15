@@ -290,6 +290,21 @@
       font-weight:900;
       color: var(--ink);
       list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    details.help summary::after{
+      content:"▾";
+      color:var(--muted);
+      font-weight:900;
+      font-size:14px;
+      line-height:1;
+      transition: transform 140ms ease;
+    }
+    details.help[open] summary::after{
+      transform: rotate(180deg);
     }
     details.help summary::-webkit-details-marker{display:none;}
     details.help .hint{margin-top:8px;}
