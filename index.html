@@ -876,7 +876,14 @@
             <h2 style="margin:0 0 4px;">생성 결과</h2>
             <div class="hint">복사/다운로드 후 결과가 마음에 들지 않으면 다시 생성해 다른 조합도 만들어보세요.</div>
           </div>
-	          <div class="btns" style="margin:0;">
+	          <div class="btns" style="margin:0; align-items:center;">
+	            <label class="hint" style="display:flex; align-items:center; gap:6px; margin:0;">
+	              <span>표 기준</span>
+	              <select id="resultBasis" class="smallBtn" style="height:34px; padding:0 10px;">
+	                <option value="promote" selected>진급반 기준</option>
+	                <option value="prev">이전반 기준</option>
+	              </select>
+	            </label>
 	            <button id="btnCopy">결과 복사</button>
 	            <button id="btnSheets">구글 스프레드시트로 열기</button>
 	            <button id="btnCSV">CSV 다운로드</button>
@@ -1773,6 +1780,12 @@ function render(classes, input){
   }
 
   const traitNames = input.traitNames;
+
+  const basis = ( $("resultBasis")?.value || "promote" );
+  const gradeNum = parseInt(String(input.grade||""), 10);
+  const prevGrade = Number.isFinite(gradeNum) && gradeNum > 1 ? String(gradeNum - 1) : "";
+  const promoteGrade = cleanLine(input.grade||"");
+
   const buildClassCard = (idx)=>{
     const cls = classes[idx];
     const sum = cls.reduce((a,s)=>a+(s.score??0),0);
@@ -1796,7 +1809,13 @@ function render(classes, input){
         <table>
           <thead>
             <tr>
-	              <th style="width:92px;">학년-반-번호</th>
+              ${basis==="prev" ? `
+                <th style="width:150px;">이전학년-반-번호</th>
+                <th style="width:150px;">진급학년-반-번호</th>
+              ` : `
+                <th style="width:150px;">진급학년-반-번호</th>
+                <th style="width:150px;">이전학년-반-번호</th>
+              `}
               <th>이름</th>
               <th style="width:72px;">성별</th>
               <th style="width:90px;">점수</th>
@@ -1807,9 +1826,19 @@ function render(classes, input){
           <tbody>
             ${cls.map((s,i)=>{
               const tr = traitNames.filter(t=>s.traits.has(t)).join(", ");
+
+              const promoteKey = `${promoteGrade ? promoteGrade + "-" : ""}${idx+1}-${i+1}`;
+              const prevKey = (s.prevClass!=null && s.prevNo!=null)
+                ? `${prevGrade ? prevGrade + "-" : ""}${s.prevClass}-${s.prevNo}`
+                : "";
+
+              const left = (basis==="prev") ? prevKey : promoteKey;
+              const right = (basis==="prev") ? promoteKey : prevKey;
+
               return `
                 <tr>
-	                  <td>${escapeHtml((input.grade ? input.grade + "-" : "") + (idx+1) + "-" + (i+1))}</td>
+                  <td>${escapeHtml(left)}</td>
+                  <td style="color:var(--muted);">${escapeHtml(right)}</td>
                   <td>${escapeHtml(s.display)}</td>
                   <td>${s.gender||""}</td>
                   <td>${s.score ?? ""}</td>
@@ -2053,6 +2082,10 @@ $("btnGenerate").onclick = ()=>{
     setMsg(e.message || String(e), false);
   }
 };
+
+$("resultBasis")?.addEventListener("change", ()=>{
+  if (last) render(last.classes, last.input);
+});
 
 $("btnReset").onclick = ()=>{
   ["roster","boys","girls","scores","avoidPairs","siblings"].forEach(id=>$(id).value="");
