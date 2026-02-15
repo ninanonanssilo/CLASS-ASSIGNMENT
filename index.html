@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>반편성 생성기 | Edu Tools</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   <style>
     @font-face {
       font-family: "Paperlogy";
@@ -203,9 +204,9 @@
       letter-spacing: .08em;
     }
     .side-link{
-      display:flex;
+      display:grid;
+      grid-template-columns: 36px 1fr 18px;
       align-items:center;
-      justify-content:space-between;
       gap:12px;
       padding:12px 12px;
       border:1px solid var(--line);
@@ -232,8 +233,9 @@
       color: rgba(17,24,39,.75);
       flex:0 0 auto;
     }
-    .side-label{font-weight:900;}
-    .side-ext{color: var(--muted); font-weight:900;}
+    .side-label{font-weight:900; text-align:left;}
+    .side-link.is-active .side-label{ text-align:center; }
+    .side-ext{color: var(--muted); font-weight:900; text-align:right;}
     .side-divider{height:1px; background: var(--line); margin:14px 0;}
     .side-note{color: var(--muted); font-size:12px; line-height:1.5;}
 
@@ -552,6 +554,7 @@
       <a class="side-link is-active" href="/" aria-current="page">
         <span class="side-ico" aria-hidden="true">C</span>
         <span class="side-label">반편성 생성기</span>
+        <span class="side-ext" aria-hidden="true"></span>
       </a>
       <a class="side-link" href="https://school-letter.pages.dev/" target="_blank" rel="noreferrer">
         <span class="side-ico" aria-hidden="true">H</span>
@@ -736,34 +739,74 @@
         </div>
 
         <div class="row">
-          <div class="field">
-            <label>쌍둥이 (선택, 한 줄에 1쌍: “이름1 - 이름2”)</label>
-            <textarea id="siblings" placeholder="예:
+	          <div class="field">
+	            <label>쌍둥이 (선택, 한 줄에 1쌍: “이름1 - 이름2”)</label>
+	            <textarea id="siblings" placeholder="예:
 홍길동 - 홍길순
 김하나 - 김하나a"></textarea>
-          </div>
-	          <div class="field">
-	            <label>쌍둥이 규칙</label>
-	            <select id="sibRuleSelect">
-	              <option value="same">같은 반</option>
-	              <option value="diff">다른 반</option>
-	              <option value="ignore">규칙 없음</option>
-	            </select>
+              <div class="hint" style="margin-top:8px;">아래에서 각 쌍마다 <b>합반(같은 반)</b>/<b>분반(다른 반)</b>을 체크로 지정할 수 있습니다.</div>
+	          </div>
+            <div class="field">
+              <label>쌍둥이 표</label>
+              <div class="sheetWrap">
+                <div class="sheetHead">
+                  <div class="hint">쌍둥이 목록을 입력한 뒤 <b>표 생성/새로고침</b>을 누르고, 각 쌍의 규칙을 체크하세요.</div>
+                  <div class="btns" style="margin:0;">
+                    <button type="button" class="smallBtn" id="btnBuildTwins">표 생성/새로고침</button>
+                    <button type="button" class="smallBtn" id="btnClearTwins">표 비우기</button>
+                  </div>
+                </div>
+                <div style="overflow:auto;">
+                  <table class="sheet">
+                    <thead>
+                      <tr>
+                        <th style="width:60px;">번호</th>
+                        <th>이름1</th>
+                        <th>이름2</th>
+                        <th style="width:92px;">합반</th>
+                        <th style="width:92px;">분반</th>
+                      </tr>
+                    </thead>
+                    <tbody id="twinBody">
+                      <tr><td colspan="5" style="color:var(--muted);">쌍둥이 목록을 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-	            <div class="toggleRow" style="margin-top:10px;">
-	              <small>우선순위</small>
-	              <div class="seg">
-                <input type="radio" name="priority" id="pScore" value="score">
-                <label for="pScore">점수균형 우선</label>
-                <input type="radio" name="priority" id="pTrait" value="trait">
-                <label for="pTrait">특성균형 우선</label>
-                <input type="radio" name="priority" id="pGender" value="gender" checked>
-                <label for="pGender">남녀균형 우선</label>
+              <div class="toggleRow" style="margin-top:10px;">
+                <small>우선순위</small>
+                <div class="row" style="width:100%; margin-top:6px;">
+                  <div class="field" style="margin:0;">
+                    <label>1순위</label>
+                    <select id="prio1">
+                      <option value="gender">남녀균형</option>
+                      <option value="score">점수균형</option>
+                      <option value="trait">특성균형</option>
+                    </select>
+                  </div>
+                  <div class="field" style="margin:0;">
+                    <label>2순위</label>
+                    <select id="prio2">
+                      <option value="score">점수균형</option>
+                      <option value="trait">특성균형</option>
+                      <option value="gender">남녀균형</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row" style="width:100%; margin-top:6px;">
+                  <div class="field" style="margin:0;">
+                    <label>3순위</label>
+                    <select id="prio3">
+                      <option value="trait">특성균형</option>
+                      <option value="score">점수균형</option>
+                      <option value="gender">남녀균형</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
-
-          </div>
-        </div>
+	        </div>
 
         <div class="btns">
           <button class="primary" id="btnGenerate">반편성 생성</button>
@@ -1139,14 +1182,88 @@ $("traitNames").addEventListener("input", ()=>{
   if (hasSheet) buildSheetFromRoster();
 });
 
+/* ========= UI: twins table (per-pair rule) ========= */
+function twinsSnapshot(){
+  const rows = Array.from(document.querySelectorAll("#twinBody tr[data-twin-a][data-twin-b]"));
+  const snap = new Map();
+  for (const r of rows){
+    const a = cleanLine(r.dataset.twinA || "");
+    const b = cleanLine(r.dataset.twinB || "");
+    if (!a || !b) continue;
+    const key = `${a}||${b}`;
+    const same = !!r.querySelector('input[data-twin-rule="same"]')?.checked;
+    const diff = !!r.querySelector('input[data-twin-rule="diff"]')?.checked;
+    snap.set(key, {same, diff});
+  }
+  return snap;
+}
+
+function buildTwinsTable(){
+  const tbody = $("twinBody");
+  const lines = splitLines($("siblings").value);
+  if (!lines.length){
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);">쌍둥이 목록을 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
+    return;
+  }
+
+  const prev = twinsSnapshot();
+  const pairs = [];
+  for (const line of lines){
+    const parts = line.split("-").map(cleanLine);
+    if (parts.length < 2) continue;
+    const a = parts[0];
+    const b = parts[1];
+    if (!a || !b) continue;
+    pairs.push([a,b]);
+  }
+  if (!pairs.length){
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);">형식이 맞지 않습니다. 한 줄에 “이름1 - 이름2” 형태로 입력해 주세요.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = "";
+  pairs.forEach(([a,b], idx)=>{
+    const key = `${a}||${b}`;
+    const keep = prev.get(key);
+    const tr = document.createElement("tr");
+    tr.dataset.twinA = a;
+    tr.dataset.twinB = b;
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${escapeHtml(a)}</td>
+      <td>${escapeHtml(b)}</td>
+      <td style="text-align:center;"><input type="checkbox" data-twin-rule="same" aria-label="합반"></td>
+      <td style="text-align:center;"><input type="checkbox" data-twin-rule="diff" aria-label="분반"></td>
+    `;
+    const cbSame = tr.querySelector('input[data-twin-rule="same"]');
+    const cbDiff = tr.querySelector('input[data-twin-rule="diff"]');
+    cbSame.checked = keep ? !!keep.same : true; // default: same class
+    cbDiff.checked = keep ? !!keep.diff : false;
+
+    const sync = (src)=>{
+      if (src === cbSame && cbSame.checked) cbDiff.checked = false;
+      if (src === cbDiff && cbDiff.checked) cbSame.checked = false;
+    };
+    cbSame.addEventListener("change", ()=>sync(cbSame));
+    cbDiff.addEventListener("change", ()=>sync(cbDiff));
+
+    tbody.appendChild(tr);
+  });
+}
+
+$("btnBuildTwins").addEventListener("click", buildTwinsTable);
+$("btnClearTwins").addEventListener("click", ()=>{
+  $("twinBody").innerHTML = `<tr><td colspan="5" style="color:var(--muted);">쌍둥이 목록을 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
+});
+
 /* ========= Core: parse inputs ========= */
 function readInputs(){
   const k = Math.max(2, Math.min(20, parseInt($("k").value||"4",10)));
   // seed: internal only (user input removed)
   const seed = String(Date.now());
   const grade = cleanLine($("grade")?.value || "");
-  const priority = document.querySelector('input[name="priority"]:checked')?.value || "gender";
-  const sibRule = cleanLine($("sibRuleSelect")?.value || "") || "same";
+  const priorityOrder = [cleanLine($("prio1")?.value || ""), cleanLine($("prio2")?.value || ""), cleanLine($("prio3")?.value || "")].filter(Boolean);
+  const priority = priorityOrder[0] || "gender";
 
   // roster
   let rosterLines = [];
@@ -1250,9 +1367,13 @@ function readInputs(){
     }
   }
 
-  // twins groups (textarea): one pair per line, "이름1 - 이름2"
-  // Merge connected pairs into a group (union-find).
-  const twinLines = splitLines($("siblings").value);
+  // Twins rules per pair (from twin table): 합반 -> same-group, 분반 -> avoid (different class)
+  // If textarea has content but table isn't built yet, auto-build with defaults.
+  const hasTwinTable = document.querySelectorAll("#twinBody tr[data-twin-a][data-twin-b]").length > 0;
+  if (!hasTwinTable && splitLines($("siblings").value).length){
+    buildTwinsTable();
+  }
+  const twinRows = Array.from(document.querySelectorAll("#twinBody tr[data-twin-a][data-twin-b]"));
   const parent = new Map();
   function find(x){
     const p = parent.get(x) ?? x;
@@ -1265,22 +1386,40 @@ function readInputs(){
     const ra = find(a), rb = find(b);
     if (ra !== rb) parent.set(ra, rb);
   }
-  for (const line of twinLines){
-    const parts = line.split("-").map(cleanLine);
-    if (parts.length < 2) continue;
-    const a = parts[0], b = parts[1];
-    const ida = resolveToIds(a, nameMap);
-    const idb = resolveToIds(b, nameMap);
+
+  function addDiff(aId, bId){
+    if (aId === bId) return;
+    students.find(s=>s.id===aId)?.avoid.add(bId);
+    students.find(s=>s.id===bId)?.avoid.add(aId);
+  }
+
+  for (const r of twinRows){
+    const rawA = cleanLine(r.dataset.twinA || "");
+    const rawB = cleanLine(r.dataset.twinB || "");
+    if (!rawA || !rawB) continue;
+    const ida = resolveToIds(rawA, nameMap);
+    const idb = resolveToIds(rawB, nameMap);
     if (!ida || !idb) continue;
+
+    const same = !!r.querySelector('input[data-twin-rule="same"]')?.checked;
+    const diff = !!r.querySelector('input[data-twin-rule="diff"]')?.checked;
+    if (!same && !diff) continue;
+
     for (const x of ida){
       for (const y of idb){
         if (x === y) continue;
-        parent.set(x, parent.get(x) ?? x);
-        parent.set(y, parent.get(y) ?? y);
-        unite(x, y);
+        if (same){
+          parent.set(x, parent.get(x) ?? x);
+          parent.set(y, parent.get(y) ?? y);
+          unite(x, y);
+        } else if (diff){
+          addDiff(x, y);
+        }
       }
     }
   }
+
+  // materialize same-group unions into named groups
   const groups = new Map();
   for (const id of parent.keys()){
     const r = find(id);
@@ -1294,7 +1433,6 @@ function readInputs(){
     const gname = `쌍둥이${gidx++}`;
     for (const sid of uniqMembers){
       const st = students.find(s=>s.id===sid);
-      // if sheet provided a group, keep it; otherwise apply textarea group
       if (st && !st.sibGroup) st.sibGroup = gname;
     }
   }
@@ -1313,12 +1451,12 @@ function readInputs(){
   }
 
   const traitNames = splitLines($("traitNames").value.replace(/,/g,"\n"));
-  return {k, seed, grade, priority, sibRule, students, traitNames, sibGroups};
+  return {k, seed, grade, priority, priorityOrder, students, traitNames, sibGroups};
 }
 
 /* ========= Scoring / penalty ========= */
 function evaluate(classes, opts){
-  const {traitNames, priority} = opts;
+  const {traitNames, priorityOrder} = opts;
 
   const sizes = classes.map(c=>c.length);
   const sizeAvg = sizes.reduce((a,b)=>a+b,0)/classes.length;
@@ -1353,12 +1491,20 @@ function evaluate(classes, opts){
     traitVar += cnt.reduce((a,b)=>a+(b-mu)**2,0)/cnt.length;
   }
 
-  // weights
+  function wRank(metric){
+    const order = Array.isArray(priorityOrder) ? priorityOrder : [];
+    const i = order.indexOf(metric);
+    if (i === 0) return 5.0;
+    if (i === 1) return 3.2;
+    if (i === 2) return 2.0;
+    return 2.0;
+  }
+
   const w = {
     size: 1.0,
-    score: priority==="score" ? 5.0 : 2.5,
-    gender: priority==="gender" ? 5.0 : 2.0,
-    trait: priority==="trait" ? 5.0 : 2.5
+    score: wRank("score"),
+    gender: wRank("gender"),
+    trait: wRank("trait"),
   };
 
   return w.size*sizeVar + w.score*scoreVar + w.gender*genderVar + w.trait*traitVar;
@@ -1375,7 +1521,7 @@ function canPlace(student, cls){
 
 /* ========= Assignment algorithm ========= */
 function generateAssignment(input){
-  const {k, seed, students, sibGroups, sibRule} = input;
+  const {k, seed, students, sibGroups} = input;
   const rand = rng(seed);
 
   // build groups: sibling groups as "super students"
@@ -1419,30 +1565,8 @@ function generateAssignment(input){
 
   // place units
   for (const unit of groupUnits){
-    if (unit.type==="sib" && sibRule==="diff"){
-      // place each member into different classes (best effort)
-      const members = [...unit.members].sort((a,b)=>(b.score??0)-(a.score??0));
-      for (const mem of members){
-        let chosen = -1;
-        let bestScore = Infinity;
-        for (let i=0;i<k;i++){
-          const hasSameGroup = classes[i].some(s=>s.sibGroup && s.sibGroup===unit.name);
-          if (hasSameGroup) continue;
-          if (!canPlace(mem, classes[i])) continue;
-          const proxy = classes[i].length * 2 + classes[i].reduce((a,s)=>a+(s.score??0),0);
-          if (proxy < bestScore){ bestScore = proxy; chosen = i; }
-        }
-        if (chosen<0){
-          // fallback: ignore sibling diff if impossible
-          chosen = classPenaltyIndex();
-        }
-        classes[chosen].push(mem);
-      }
-      continue;
-    }
-
-    if (unit.type==="sib" && sibRule==="same"){
-      // place all together to a class that can accept all avoid constraints
+    if (unit.type==="sib"){
+      // Always keep same-group units together (twin same-class constraint).
       let chosen = -1;
       let bestScore = Infinity;
       for (let i=0;i<k;i++){
@@ -1454,7 +1578,7 @@ function generateAssignment(input){
         const proxy = classes[i].length*2 + classes[i].reduce((a,s)=>a+(s.score??0),0);
         if (proxy < bestScore){ bestScore=proxy; chosen=i; }
       }
-      if (chosen<0) chosen = classPenaltyIndex(); // fallback
+      if (chosen<0) chosen = classPenaltyIndex();
       unit.members.forEach(mem=>classes[chosen].push(mem));
       continue;
     }
@@ -1489,18 +1613,7 @@ function generateAssignment(input){
       if (!canPlace(sb, newA.filter((_,i)=>i!==ia))) continue;
       if (!canPlace(sa, newB.filter((_,i)=>i!==ib))) continue;
 
-      if (input.sibRule==="diff"){
-        const hasDupGroup = (cls)=>{
-          const seen=new Set();
-          for (const s of cls){
-            if (!s.sibGroup) continue;
-            if (seen.has(s.sibGroup)) return true;
-            seen.add(s.sibGroup);
-          }
-          return false;
-        }
-        if (hasDupGroup(newA) || hasDupGroup(newB)) continue;
-      }
+      // Twin split constraints are modeled as avoid pairs; no extra handling needed here.
 
       const oldA = classes[a], oldB = classes[b];
       classes[a]=newA; classes[b]=newB;
@@ -1634,15 +1747,17 @@ function escapeHtml(s){
 /* ========= Copy / CSV ========= */
 let last = null;
 
-  $("btnCopy").onclick = ()=>{
-    if (!last) return;
-    const {classes, input} = last;
-    let out = [];
-    out.push(`반편성 생성기 결과`);
-    out.push(`K=${input.k}, 우선순위=${input.priority}, 쌍둥이규칙=${input.sibRule}`);
-    out.push("");
-    classes.forEach((cls, idx)=>{
-      out.push(`${idx+1}반`);
+$("btnCopy").onclick = ()=>{
+  if (!last) return;
+  const {classes, input} = last;
+  let out = [];
+  out.push(`반편성 생성기 결과`);
+  const prioLabel = (x)=>({gender:"남녀균형", score:"점수균형", trait:"특성균형"}[x] || x);
+  const prioText = (Array.isArray(input.priorityOrder) ? input.priorityOrder : []).map(prioLabel).join(" > ");
+  out.push(`반 수=${input.k}, 우선순위=${prioText || prioLabel(input.priority)}`);
+  out.push("");
+  classes.forEach((cls, idx)=>{
+    out.push(`${idx+1}반`);
       cls.forEach((s,i)=>{
         const traits = input.traitNames.filter(t=>s.traits.has(t)).join(",");
       out.push(`${i+1}\t${s.display}\t${s.gender||""}\t${s.score??""}\t${traits}\t${s.sibGroup||""}`);
