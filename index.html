@@ -633,22 +633,22 @@
 
         <div class="row">
           <div class="field">
-            <label>몇 반 생성할지 (K)</label>
-            <input id="k" type="number" min="2" max="20" value="4" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
             <label>입력 방식</label>
             <select id="inputType">
               <option value="byClass">기존 반별로 입력(1반/2반/3반…)</option>
               <option value="single">전체 명렬표 1개로 입력</option>
             </select>
           </div>
+        </div>
+
+        <div class="row">
           <div class="field" id="existingCountWrap" style="display:none;">
-            <label>기존 몇 개 반의 자료를 넣을까요? (N)</label>
+            <label>기존 몇 개 반의 자료를 넣을까요</label>
             <input id="existingCount" type="number" min="1" max="20" value="3" />
+          </div>
+          <div class="field">
+            <label>몇 반 생성할지</label>
+            <input id="k" type="number" min="2" max="20" value="4" />
           </div>
         </div>
 
@@ -1151,7 +1151,7 @@ function readInputs(){
   } else {
     rosterLines = splitLines($("roster").value);
   }
-  if (rosterLines.length < k) throw new Error("학생 명렬표가 너무 적습니다. 최소 반 수(K) 이상 입력해 주세요.");
+  if (rosterLines.length < k) throw new Error("학생 명렬표가 너무 적습니다. 최소 반 수 이상 입력해 주세요.");
 
   // parse roster with optional gender
   const parsed = rosterLines.map(parseNameGender);
