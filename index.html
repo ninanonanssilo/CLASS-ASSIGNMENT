@@ -1986,9 +1986,13 @@ $("btnSheets").onclick = async ()=>{
   const tsv = rows.map(r=>r.map(v=>String(v??"").replaceAll("\t"," ").replaceAll("\n"," ")).join("\t")).join("\n");
   try{
     await navigator.clipboard.writeText(tsv);
-    setMsg("구글 스프레드시트를 새로 열었습니다. 새 시트에서 Ctrl+V로 붙여넣기 하세요. (결과는 클립보드에 복사됨)", true);
+    toast("시트용 데이터(TSV)를 클립보드에 복사했습니다.");
+    setMsg("구글 스프레드시트를 새로 열었습니다. 새 시트에서 Ctrl+V로 붙여넣기 하세요. (클립보드 복사 완료)", true);
   }catch{
-    setMsg("클립보드 복사 권한이 없어 자동 복사가 실패했어요. 결과 복사를 누른 뒤 구글 스프레드시트에서 붙여넣기(Ctrl+V) 해주세요.", false);
+    // Fallback: download TSV so the user can still import/copy.
+    downloadText("반편성_구글시트.tsv", tsv, "text/tab-separated-values;charset=utf-8");
+    toast("클립보드 복사 권한이 없어 TSV 파일로 다운로드했습니다.", 2400);
+    setMsg("클립보드 복사 권한이 없어 자동 복사가 실패했어요. 대신 TSV 파일을 다운로드했으니, 구글 시트에 붙여넣거나 가져오기 해주세요.", false);
   }
   window.open("https://docs.google.com/spreadsheets/u/0/create", "_blank", "noopener,noreferrer");
 };
