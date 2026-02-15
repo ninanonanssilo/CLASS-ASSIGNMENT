@@ -5,147 +5,243 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>반편성 생성기 | Edu Tools</title>
   <style>
+    @font-face {
+      font-family: "Paperlogy";
+      src: url("https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-5Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Paperlogy";
+      src: url("https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-7Bold.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+    }
+
     :root{
-      --bg:#f6f7fb;
+      --bg:#ffffff;
       --card:#ffffff;
-      --ink:#0f172a;
-      --muted:#64748b;
+      --ink:#111827;
+      --muted:#6b7280;
       --line:#e5e7eb;
-      --soft:#f1f5f9;
-      --accent:#e9d5ff;      /* 파스텔 단색 느낌 */
-      --accent2:#dbeafe;     /* 아주 옅은 보조 */
-      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
-      --radius: 18px;
+      --soft:#f3f4f6;
+
+      --mint:#e9f6e4;
+      --shadow: 0 8px 22px rgba(17, 24, 39, 0.08);
+      --radius: 10px;
     }
 
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic", sans-serif;
-      background: radial-gradient(1200px 600px at 10% -10%, var(--accent) 0%, transparent 55%),
-                  radial-gradient(900px 500px at 90% 0%, var(--accent2) 0%, transparent 55%),
-                  var(--bg);
+      font-family: "Paperlogy", "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
       color:var(--ink);
+      word-break: keep-all;
+      overflow-wrap: break-word;
     }
 
     a{color:inherit; text-decoration:none}
-    .wrap{max-width:1100px; margin:0 auto; padding:22px 16px 56px;}
-    .topbar{
-      display:flex; align-items:flex-start; justify-content:space-between;
-      gap:12px; margin-bottom:14px;
-    }
-    .brand{
-      display:flex; flex-direction:column; gap:2px;
-    }
-    .brand b{letter-spacing:.12em; font-size:12px; color:var(--muted)}
-    .brand h1{margin:0; font-size:22px}
+    .wrap{max-width:1100px; margin:0 auto; padding:0;}
 
-    /* Category navigation (desktop boxes, mobile hamburger) */
-    .catnav{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      align-items:stretch;
-      min-width: 280px;
-      max-width: 360px;
-      position:relative;
+    /* money-report-like header */
+    .top{
+      padding: 16px 0 4px;
+      background:
+        radial-gradient(900px 280px at 10% 0%, rgba(233, 246, 228, 0.85), rgba(255, 255, 255, 0) 60%),
+        radial-gradient(740px 260px at 90% 0%, rgba(37, 99, 235, 0.10), rgba(255, 255, 255, 0) 60%);
     }
-    .catToggle{
-      display:none;
+    .top-inner{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding-left: 16px;
+      padding-right: 16px;
+      display:flex;
       align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px 12px;
+      gap:14px;
+      min-width:0;
+    }
+    .nav-toggle{
+      appearance:none;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.75);
-      border-radius: 14px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+      background:#fff;
+      border-radius: 10px;
+      width:42px;
+      height:42px;
       cursor:pointer;
-      font-weight:800;
+      display:grid;
+      align-content:center;
+      justify-items:center;
+      gap:5px;
+      box-shadow: var(--shadow);
+      flex:0 0 auto;
     }
-    .catToggle .meta{font-weight:600; color:var(--muted); font-size:12px}
-    .catToggle:focus, .catToggle:hover{
-      border-color: rgba(167,139,250,.55);
-      box-shadow: 0 0 0 4px rgba(167,139,250,.14), 0 10px 25px rgba(15, 23, 42, .08);
-      outline:none;
+    .nav-toggle:hover{
+      box-shadow: 0 12px 26px rgba(17, 24, 39, 0.12);
+      transform: translateY(-1px);
+      transition: transform 140ms ease, box-shadow 140ms ease;
     }
-    .hamburger{
-      width:18px; height:14px; position:relative; flex:0 0 auto;
+    .nav-toggle .bar{
+      width:18px;
+      height:2px;
+      background:#111827;
+      border-radius:99px;
     }
-    .hamburger i{
-      position:absolute; left:0; right:0; height:2px; border-radius:2px;
-      background: rgba(15,23,42,.75);
+    .hero{
+      display:grid;
+      gap:4px;
+      min-width:0;
     }
-    .hamburger i:nth-child(1){top:0}
-    .hamburger i:nth-child(2){top:6px}
-    .hamburger i:nth-child(3){top:12px}
-    .catMenu{
+    .hero-top{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .title{
+      margin:0;
+      font-size:26px;
+      letter-spacing:-0.4px;
+      font-weight:900;
+    }
+    .subtitle{
+      margin-top:2px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .page{
+      width:100%;
+      max-width:1180px;
+      margin-inline:auto;
+      padding-left:16px;
+      padding-right:16px;
+      padding-top:12px;
+      padding-bottom:48px;
+      min-height:100vh;
+    }
+
+    /* money-report-like sidebar (hamburger category) */
+    .sidebar{
+      position: fixed;
+      top:0;
+      left:0;
+      height:100%;
+      width:320px;
+      max-width: calc(100% - 60px);
+      background:
+        radial-gradient(420px 280px at 20% 0%, rgba(233, 246, 228, 0.85), rgba(255, 255, 255, 0) 60%),
+        linear-gradient(180deg, #ffffff, #fbfbfb);
+      border-right: 1px solid rgba(229, 231, 235, 0.9);
+      box-shadow: 0 22px 54px rgba(0,0,0,.16);
+      transform: translateX(-110%);
+      transition: transform 200ms ease;
+      z-index: 80;
       display:flex;
       flex-direction:column;
-      gap:8px;
+      padding-left: env(safe-area-inset-left);
     }
-    @media (max-width: 980px){
-      .topbar{align-items:flex-start; flex-direction:column;}
-      .catnav{min-width:unset; width:100%;}
-      .catToggle{display:flex;}
-      .catMenu{
-        display:none;
-        position:absolute;
-        top:52px;
-        left:0;
-        right:0;
-        padding:10px;
-        background: rgba(255,255,255,.92);
-        border:1px solid var(--line);
-        border-radius: 16px;
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(10px);
-        z-index: 60;
-      }
-      .catnav.open .catMenu{display:flex;}
+    .scrim{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+      z-index: 70;
     }
-    .cat{
+    body.navOpen{overflow:hidden;}
+    body.navOpen .sidebar{transform: translateX(0);}
+    body.navOpen .scrim{opacity:1; pointer-events:auto;}
+    .side-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding:10px 12px;
+      padding:14px 14px 10px;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+    }
+    .side-brand{display:flex; align-items:center; gap:10px;}
+    .side-mark{
+      width:34px; height:34px; border-radius: 12px;
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.65) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(34,197,94,.28), rgba(37,99,235,.18));
+      border:1px solid rgba(17,24,39,.08);
+    }
+    .side-app{font-weight:900;}
+    .side-sub{color:var(--muted); font-size:12px; margin-top:2px;}
+    .icon-btn{
+      appearance:none;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.75);
-      border-radius: 14px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+      background:#fff;
+      border-radius: 10px;
+      width:40px;
+      height:40px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: var(--shadow);
+      flex:0 0 auto;
+      font-size:18px;
+      line-height:1;
     }
-    .cat .name{
-      font-size:13px;
-      font-weight:800;
-      letter-spacing:-0.01em;
+    .side-nav{
+      padding: 12px 14px 18px;
+      overflow:auto;
     }
-    .cat .meta{
+    .side-section{
+      margin: 14px 0 10px;
       font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 175px;
-      text-align:right;
+      color: var(--muted);
+      font-weight: 900;
+      letter-spacing: .08em;
     }
-    .cat:focus, .cat:hover{
-      border-color: rgba(167,139,250,.55);
-      box-shadow: 0 0 0 4px rgba(167,139,250,.14), 0 10px 25px rgba(15, 23, 42, .08);
-      outline:none;
+    .side-link{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 12px;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.88);
+      box-shadow: var(--shadow);
     }
+    .side-link + .side-link{margin-top:10px;}
+    .side-link:hover{
+      transform: translateY(-1px);
+      transition: transform 140ms ease;
+    }
+    .side-link.is-active{
+      background: rgba(233, 246, 228, 0.92);
+      border-color: rgba(207, 231, 195, 0.9);
+    }
+    .side-ico{
+      width:34px; height:34px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(243,244,246,.85);
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 900;
+      color: rgba(17,24,39,.75);
+      flex:0 0 auto;
+    }
+    .side-label{font-weight:900;}
+    .side-ext{color: var(--muted); font-weight:900;}
+    .side-divider{height:1px; background: var(--line); margin:14px 0;}
+    .side-note{color: var(--muted); font-size:12px; line-height:1.5;}
 
-    .hero{
+    .intro{
       background:rgba(255,255,255,.8);
       border:1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:18px;
-      margin-bottom:14px;
+      padding:16px;
+      margin: 14px 0;
     }
-    .hero p{margin:0; color:var(--muted); line-height:1.6}
+    .intro p{margin:0; color:var(--muted); line-height:1.6}
     .grid{
       display:grid;
       grid-template-columns: 1.15fr 1fr;
@@ -167,6 +263,29 @@
       font-size:16px;
     }
     .sub{margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6}
+    details.help{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.65);
+      border-radius: 16px;
+      padding:10px 12px;
+    }
+    details.help summary{
+      cursor:pointer;
+      font-weight:900;
+      color: var(--ink);
+      list-style:none;
+    }
+    details.help summary::-webkit-details-marker{display:none;}
+    details.help .hint{margin-top:8px;}
+    .helpSteps{
+      margin:10px 0 0;
+      padding:0;
+      display:grid;
+      gap:6px;
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
     .row{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -198,8 +317,8 @@
     select{padding-right:44px;}
     textarea{min-height:120px; resize:vertical}
     input:focus, textarea:focus, select:focus{
-      border-color: #a78bfa;
-      box-shadow: 0 0 0 4px rgba(167,139,250,.18);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37,99,235,.14);
     }
 
     .btns{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px}
@@ -213,8 +332,8 @@
       font-weight:600;
     }
     button.primary{
-      background: linear-gradient(180deg, rgba(233,213,255,.95), rgba(233,213,255,.65));
-      border-color: rgba(167,139,250,.55);
+      background: linear-gradient(180deg, rgba(220,252,231,.95), rgba(220,252,231,.65));
+      border-color: rgba(34,197,94,.38);
     }
     button.ghost{background:transparent}
     button:disabled{opacity:.5; cursor:not-allowed}
@@ -300,35 +419,6 @@
     }
     tr:last-child td{border-bottom:none}
 
-    /* Excel-like input grid */
-    .sheet table{width:100%; border-collapse:separate; border-spacing:0; font-size:12px}
-    .sheet th, .sheet td{padding:8px 8px; border-bottom:1px solid var(--line); vertical-align:middle}
-    .sheet th{
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: rgba(241,245,249,.92);
-      backdrop-filter: blur(6px);
-      white-space: nowrap;
-    }
-    .sheet td{background:#fff}
-    .sheet tr:last-child td{border-bottom:none}
-    .sheet .cellInput{
-      width: 100%;
-      min-height: 36px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      outline: none;
-    }
-    .sheet .cellInput:focus{
-      border-color: #a78bfa;
-      box-shadow: 0 0 0 4px rgba(167,139,250,.14);
-    }
-    .sheet .idcell{color:var(--muted)}
-    .sheet .numcell{color:var(--muted); text-align:right; width:56px}
-    .sheet .checkcell{display:flex; align-items:center; justify-content:center}
-
     /* Compact sheet + multi-select dropdown (trait picker) */
     .sheetWrap{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff}
     .sheetHead{
@@ -343,15 +433,32 @@
     }
     table.sheet th, table.sheet td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle}
     table.sheet th{background:rgba(241,245,249,.55); color:var(--muted); font-weight:700}
-    table.sheet td input, table.sheet td select{
+    table.sheet td input:not([type="checkbox"]), table.sheet td select{
       width:100%;
       min-height:40px;
       padding:8px 10px;
       border-radius:12px;
       border:1px solid var(--line);
       outline:none;
+      font-size:13px;
     }
-    table.sheet td input:focus, table.sheet td select:focus{
+    table.sheet td select{
+      font-weight:800;
+      padding-right:40px;
+    }
+    table.sheet td select.genderSel{
+      min-width:96px; /* mobile: make gender visible */
+    }
+    table.sheet td select.genderSel.is-m{
+      background: linear-gradient(180deg, rgba(219,234,254,.9), rgba(219,234,254,.55));
+      border-color: rgba(59,130,246,.25);
+    }
+    table.sheet td select.genderSel.is-f{
+      background: linear-gradient(180deg, rgba(254,226,226,.9), rgba(254,226,226,.55));
+      border-color: rgba(239,68,68,.20);
+    }
+    table.sheet td select.genderSel option{font-weight:700;}
+    table.sheet td input:not([type="checkbox"]):focus, table.sheet td select:focus{
       border-color: #a78bfa;
       box-shadow: 0 0 0 4px rgba(167,139,250,.14);
     }
@@ -359,17 +466,41 @@
     .badgeBox{display:flex; gap:6px; flex-wrap:wrap}
     .badge{font-size:11px; padding:6px 8px; border-radius:999px; border:1px solid var(--line); background:rgba(233,213,255,.35)}
     .pop{position:relative}
-    .popBtn{width:100%; text-align:left}
+    .popBtn{
+      width:100%;
+      text-align:left;
+      font-weight:800;
+      border-radius:12px;
+      min-height:40px;
+      padding:8px 10px;
+    }
     .popPanel{
-      position:absolute; z-index:50; top:42px; left:0; right:0;
+      position:absolute; z-index:50; top:44px; left:0;
+      width: min(320px, calc(100vw - 48px));
       border:1px solid var(--line); border-radius:14px; background:#fff;
       box-shadow: var(--shadow); padding:10px;
-      max-height:220px; overflow:auto;
+      max-height: min(240px, 42vh);
+      overflow:auto;
       display:none;
     }
     .pop.open .popPanel{display:block}
-    .popItem{display:flex; align-items:center; gap:8px; padding:6px 4px}
-    .popItem input{width:auto; min-height:auto}
+    .popItem{
+      display:grid;
+      grid-template-columns: 22px 1fr;
+      align-items:center;
+      gap:10px;
+      padding:8px 6px;
+      border-radius:10px;
+    }
+    .popItem:hover{background: rgba(241,245,249,.7);}
+    .popItem input[type="checkbox"]{
+      width:18px;
+      height:18px;
+      min-height:auto;
+      padding:0;
+      margin:0;
+      accent-color: #7c3aed;
+    }
 
     .footer{
       margin-top:26px;
@@ -399,43 +530,82 @@
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <b>EDU TOOLS</b>
-        <h1>반편성 생성기</h1>
-      </div>
-
-      <!-- Category cross-site navigation -->
-      <nav class="catnav" id="catnav" aria-label="카테고리">
-        <button type="button" class="catToggle" id="catToggle" aria-expanded="false" aria-controls="catMenu">
-          <span>카테고리</span>
-          <span class="meta">
-            <span class="hamburger" aria-hidden="true"><i></i><i></i><i></i></span>
-          </span>
-        </button>
-        <div class="catMenu" id="catMenu">
-          <a class="cat" href="https://school-letter.pages.dev/" target="_blank" rel="noopener">
-            <span class="name">가정통신문</span>
-            <span class="meta">school-letter.pages.dev</span>
-          </a>
-          <a class="cat" href="https://money-report.pages.dev/" target="_blank" rel="noopener">
-            <span class="name">품의생성기</span>
-            <span class="meta">money-report.pages.dev</span>
-          </a>
-          <a class="cat" href="https://educate1.pages.dev/" target="_blank" rel="noopener">
-            <span class="name">공문생성기</span>
-            <span class="meta">educate1.pages.dev</span>
-          </a>
+  <aside id="sidebar" class="sidebar" aria-label="카테고리">
+    <div class="side-head">
+      <div class="side-brand" aria-label="서비스">
+        <div class="side-mark" aria-hidden="true"></div>
+        <div class="side-brand-text">
+          <div class="side-app">Edu Tools</div>
+          <div class="side-sub">업무 자동화 도우미</div>
         </div>
-      </nav>
+      </div>
+      <button id="navClose" class="icon-btn" type="button" aria-label="닫기">
+        <span aria-hidden="true">×</span>
+      </button>
     </div>
+    <nav class="side-nav" aria-label="카테고리 목록">
+      <div class="side-section">생성기</div>
+      <a class="side-link is-active" href="/" aria-current="page">
+        <span class="side-ico" aria-hidden="true">C</span>
+        <span class="side-label">반편성 생성기</span>
+      </a>
+      <a class="side-link" href="https://school-letter.pages.dev/" target="_blank" rel="noreferrer">
+        <span class="side-ico" aria-hidden="true">H</span>
+        <span class="side-label">가정통신문</span>
+        <span class="side-ext" aria-hidden="true">↗</span>
+      </a>
+      <a class="side-link" href="https://money-report.pages.dev/" target="_blank" rel="noreferrer">
+        <span class="side-ico" aria-hidden="true">P</span>
+        <span class="side-label">품의생성기</span>
+        <span class="side-ext" aria-hidden="true">↗</span>
+      </a>
+      <a class="side-link" href="https://educate1.pages.dev/" target="_blank" rel="noreferrer">
+        <span class="side-ico" aria-hidden="true">D</span>
+        <span class="side-label">공문생성기</span>
+        <span class="side-ext" aria-hidden="true">↗</span>
+      </a>
+      <div class="side-divider" role="separator" aria-hidden="true"></div>
+      <div class="side-section">연동</div>
+      <div class="side-note">추후 이 메뉴에서 서비스 간 연동을 추가합니다.</div>
+    </nav>
+  </aside>
+  <div id="scrim" class="scrim" aria-hidden="true"></div>
 
-    <div class="hero">
+  <header class="top">
+    <div class="top-inner">
+      <button id="navToggle" class="nav-toggle" type="button" aria-label="카테고리 열기" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <div class="hero">
+        <div class="hero-top">
+          <h1 class="title">반편성 생성기</h1>
+        </div>
+        <div class="subtitle">학생 명렬표로 반편성을 자동으로 생성합니다.</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="intro">
       <p>
-        학생 명렬표를 <b>그대로 붙여넣기</b> 하면, 점수/남녀/특성/금지조합/형제·쌍둥이 규칙을 반영해
+        학생 명렬표를 <b>그대로 붙여넣기</b> 하면, 점수/남녀/특성/금지조합/쌍둥이 규칙을 반영해
         <b>자동으로 반편성</b>을 생성합니다. (개인정보는 최소화해서 사용하세요.)
       </p>
+      <div style="margin-top:12px;">
+        <details class="help">
+          <summary>사용 안내</summary>
+          <div class="hint">
+            <div class="helpSteps">
+              <div>1. <b>K(몇 반)</b>을 설정합니다.</div>
+              <div>2. 명렬표를 붙여넣고, <b>표 생성/새로고침</b>을 눌러 학생 표를 만듭니다.</div>
+              <div>3. 학생 표에서 <b>성별/점수/특성</b>을 입력한 뒤 <b>반편성 생성</b>을 누릅니다.</div>
+              <div>4. 민감한 정보(금지 조합 등)는 최소한으로만 입력하세요.</div>
+            </div>
+          </div>
+        </details>
+      </div>
     </div>
 
     <div class="grid">
@@ -466,19 +636,14 @@
             <label>몇 반 생성할지 (K)</label>
             <input id="k" type="number" min="2" max="20" value="4" />
           </div>
-          <div class="field">
-            <label>랜덤 시드(같은 값이면 같은 결과)</label>
-            <input id="seed" type="text" placeholder="예: 2026-1" value="2026-1" />
-          </div>
         </div>
 
         <div class="row">
           <div class="field">
             <label>입력 방식</label>
             <select id="inputType">
-              <option value="single">전체 명렬표 1개로 입력</option>
               <option value="byClass">기존 반별로 입력(1반/2반/3반…)</option>
-              <option value="grid">엑셀 표로 입력(체크)</option>
+              <option value="single">전체 명렬표 1개로 입력</option>
             </select>
           </div>
           <div class="field" id="existingCountWrap" style="display:none;">
@@ -488,30 +653,6 @@
         </div>
 
         <div id="byClassArea" style="display:none; margin-top:6px;"></div>
-
-        <div id="gridWrap" style="display:none; margin-top:6px;">
-          <div class="hint" style="margin:0 0 10px;">
-            엑셀에서 표를 복사해 붙여넣을 수 있습니다. 기본 열 순서: <span class="mono">이름 · 성별 · 점수 · (특성들...)</span>
-            특성 칸은 <span class="mono">1/0</span>, <span class="mono">Y/N</span>, <span class="mono">TRUE/FALSE</span> 등으로 붙여넣으면 체크로 반영됩니다.
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label>표 행 개수</label>
-              <input id="gridRows" type="number" min="1" max="400" value="40" />
-            </div>
-            <div class="field">
-              <label>표 도구</label>
-              <div class="btns" style="margin-top:0;">
-                <button type="button" id="btnGridAdd">행 +10</button>
-                <button type="button" id="btnGridClear">표 비우기</button>
-                <button type="button" class="ghost" id="btnGridImportRoster">명렬표 → 표</button>
-              </div>
-            </div>
-          </div>
-
-          <div id="gridArea" class="sheet" style="overflow:auto; border:1px solid var(--line); border-radius:14px; background:#fff;"></div>
-        </div>
 
         <div class="field" id="rosterWrap">
           <label>학생 명렬표 (줄바꿈으로 구분)</label>
@@ -572,7 +713,7 @@
                     <th style="width:90px;">성별</th>
                     <th style="width:90px;">점수</th>
                     <th style="min-width:240px;">특성(멀티선택)</th>
-                    <th style="min-width:140px;">형제그룹</th>
+                    <th style="min-width:140px;">쌍둥이그룹</th>
                   </tr>
                 </thead>
                 <tbody id="sheetBody">
@@ -592,33 +733,27 @@
 
         <div class="row">
           <div class="field">
-            <label>형제/자매/쌍둥이 그룹 (선택) — “그룹명: 이름1, 이름2 …”</label>
+            <label>쌍둥이 그룹 (선택) — “그룹명: 이름1, 이름2 …”</label>
             <textarea id="siblings" placeholder="예:
 A가족: 홍길동, 홍길순
 쌍둥이1: 김하나, 김하나a"></textarea>
           </div>
-          <div class="field">
-            <label>형제/쌍둥이 규칙</label>
-            <div class="toggleRow">
-              <small>같은 반 / 다른 반</small>
-              <div class="seg">
-                <input type="radio" name="sibRule" id="sibSame" value="same" checked>
-                <label for="sibSame">같은 반</label>
-                <input type="radio" name="sibRule" id="sibDiff" value="diff">
-                <label for="sibDiff">다른 반</label>
-                <input type="radio" name="sibRule" id="sibIgnore" value="ignore">
-                <label for="sibIgnore">규칙 없음</label>
-              </div>
-            </div>
+	          <div class="field">
+	            <label>쌍둥이 규칙</label>
+	            <select id="sibRuleSelect">
+	              <option value="same">같은 반</option>
+	              <option value="diff">다른 반</option>
+	              <option value="ignore">규칙 없음</option>
+	            </select>
 
-            <div class="toggleRow" style="margin-top:10px;">
-              <small>우선순위</small>
-              <div class="seg">
-                <input type="radio" name="priority" id="pScore" value="score" checked>
+	            <div class="toggleRow" style="margin-top:10px;">
+	              <small>우선순위</small>
+	              <div class="seg">
+                <input type="radio" name="priority" id="pScore" value="score">
                 <label for="pScore">점수균형 우선</label>
                 <input type="radio" name="priority" id="pTrait" value="trait">
                 <label for="pTrait">특성균형 우선</label>
-                <input type="radio" name="priority" id="pGender" value="gender">
+                <input type="radio" name="priority" id="pGender" value="gender" checked>
                 <label for="pGender">남녀균형 우선</label>
               </div>
             </div>
@@ -640,7 +775,7 @@ A가족: 홍길동, 홍길순
         <div class="resultHead">
           <div>
             <h2 style="margin:0 0 4px;">생성 결과</h2>
-            <div class="hint">복사/다운로드 후 필요하면 다시 “시드”를 바꿔 다른 조합도 만들어보세요.</div>
+            <div class="hint">복사/다운로드 후 결과가 마음에 들지 않으면 다시 생성해 다른 조합도 만들어보세요.</div>
           </div>
           <div class="btns" style="margin:0;">
             <button id="btnCopy">결과 복사</button>
@@ -657,7 +792,7 @@ A가족: 홍길동, 홍길순
       반편성 생성기<br/>
       Copyright © HONGSEOK LEE. All rights reserved.
     </div>
-  </div>
+  </main>
 
 <script>
 /* ========= Helpers ========= */
@@ -666,29 +801,32 @@ const cleanLine = (s)=>String(s||"").trim();
 const splitLines = (t)=>String(t||"").split(/\r?\n/).map(cleanLine).filter(Boolean);
 const uniq = (arr)=>Array.from(new Set(arr));
 
-// Mobile hamburger: category menu
-const catnav = $("catnav");
-const catToggle = $("catToggle");
-if (catnav && catToggle){
-  function closeCatMenu(){
-    catnav.classList.remove("open");
-    catToggle.setAttribute("aria-expanded", "false");
-  }
-  function toggleCatMenu(){
-    const open = catnav.classList.toggle("open");
-    catToggle.setAttribute("aria-expanded", open ? "true" : "false");
-  }
-  catToggle.addEventListener("click", toggleCatMenu);
-  document.addEventListener("click", (e)=>{
-    if (!catnav.contains(e.target)) closeCatMenu();
-  });
-  document.addEventListener("keydown", (e)=>{
-    if (e.key === "Escape") closeCatMenu();
-  });
-  for (const a of Array.from(catnav.querySelectorAll("a.cat"))){
-    a.addEventListener("click", closeCatMenu);
-  }
+// Sidebar (hamburger category) toggle
+const sidebar = document.getElementById("sidebar");
+const scrim = document.getElementById("scrim");
+const navToggle = document.getElementById("navToggle");
+const navClose = document.getElementById("navClose");
+
+function openNav(){
+  document.body.classList.add("navOpen");
+  navToggle?.setAttribute("aria-expanded", "true");
+  scrim?.setAttribute("aria-hidden", "false");
 }
+function closeNav(){
+  document.body.classList.remove("navOpen");
+  navToggle?.setAttribute("aria-expanded", "false");
+  scrim?.setAttribute("aria-hidden", "true");
+}
+function toggleNav(){
+  if (document.body.classList.contains("navOpen")) closeNav();
+  else openNav();
+}
+navToggle?.addEventListener("click", toggleNav);
+navClose?.addEventListener("click", closeNav);
+scrim?.addEventListener("click", closeNav);
+document.addEventListener("keydown", (e)=>{
+  if (e.key === "Escape") closeNav();
+});
 
 function buildByClassInputs(){
   const area = $("byClassArea");
@@ -715,281 +853,20 @@ function readExistingClassRoster(){
   return all;
 }
 
-function normalizeGenderToken(v){
-  const s = cleanLine(v);
-  if (!s) return "";
-  if (s==="남" || /^m(ale)?$/i.test(s)) return "남";
-  if (s==="여" || /^f(emale)?$/i.test(s)) return "여";
-  return "";
-}
-
-function truthyToken(v){
-  const s = cleanLine(v).toLowerCase();
-  if (!s) return false;
-  return ["1","y","yes","true","t","o","ㅇ","ok","v","check","checked","on"].includes(s);
-}
-
-function gridTraitNames(){
-  return splitLines($("traitNames").value.replace(/,/g,"\n"));
-}
-
-function gridSnapshot(){
-  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
-  return rows.map(tr=>{
-    const name = tr.querySelector('input[data-col="0"]')?.value || "";
-    const gender = tr.querySelector('select[data-col="1"]')?.value || "";
-    const score = tr.querySelector('input[data-col="2"]')?.value || "";
-    const traits = {};
-    for (const cb of Array.from(tr.querySelectorAll('input[type="checkbox"][data-trait]'))){
-      traits[cb.dataset.trait] = !!cb.checked;
-    }
-    return {name, gender, score, traits};
-  });
-}
-
-function recomputeGridIds(){
-  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
-  const parsedNames = rows.map(tr=>{
-    const raw = tr.querySelector('input[data-col="0"]')?.value || "";
-    const p = parseNameGender(raw);
-    return cleanLine(p.name);
-  });
-
-  // disambiguate only among non-empty names, preserve blank rows
-  const nonEmpty = [];
-  const idxMap = [];
-  for (let i=0;i<parsedNames.length;i++){
-    if (!parsedNames[i]) continue;
-    idxMap.push(i);
-    nonEmpty.push(parsedNames[i]);
-  }
-  const ids = disambiguateNames(nonEmpty);
-  for (let i=0;i<rows.length;i++){
-    const cell = rows[i].querySelector('[data-idcell]');
-    if (!cell) continue;
-    cell.textContent = "";
-  }
-  for (let j=0;j<idxMap.length;j++){
-    const i = idxMap[j];
-    const cell = rows[i].querySelector('[data-idcell]');
-    if (cell) cell.textContent = ids[j];
-  }
-}
-
-function buildGrid(opts){
-  const preserve = opts?.preserve !== false;
-  const snapshot = preserve ? gridSnapshot() : null;
-  const traits = gridTraitNames();
-  const n = Math.max(1, Math.min(400, parseInt($("gridRows")?.value || "40", 10)));
-
-  const area = $("gridArea");
-  area.innerHTML = "";
-
-  const table = document.createElement("table");
-  const thead = document.createElement("thead");
-  const thr = document.createElement("tr");
-  const headers = ["번호","ID","이름","성별","점수", ...traits];
-  for (const h of headers){
-    const th = document.createElement("th");
-    th.textContent = h;
-    thr.appendChild(th);
-  }
-  thead.appendChild(thr);
-  table.appendChild(thead);
-
-  const tbody = document.createElement("tbody");
-  for (let i=0;i<n;i++){
-    const tr = document.createElement("tr");
-    tr.dataset.gridRow = String(i);
-
-    const tdNum = document.createElement("td");
-    tdNum.className = "numcell";
-    tdNum.textContent = String(i+1);
-    tr.appendChild(tdNum);
-
-    const tdId = document.createElement("td");
-    tdId.className = "mono idcell";
-    tdId.innerHTML = `<span data-idcell></span>`;
-    tr.appendChild(tdId);
-
-    const tdName = document.createElement("td");
-    tdName.innerHTML = `<input class="cellInput" type="text" data-col="0" data-row="${i}" placeholder="이름" />`;
-    tr.appendChild(tdName);
-
-    const tdGender = document.createElement("td");
-    tdGender.innerHTML = `
-      <select class="cellInput" data-col="1" data-row="${i}">
-        <option value=""></option>
-        <option value="남">남</option>
-        <option value="여">여</option>
-      </select>`;
-    tr.appendChild(tdGender);
-
-    const tdScore = document.createElement("td");
-    tdScore.innerHTML = `<input class="cellInput" type="text" inputmode="decimal" data-col="2" data-row="${i}" placeholder="" />`;
-    tr.appendChild(tdScore);
-
-    for (let j=0;j<traits.length;j++){
-      const t = traits[j];
-      const td = document.createElement("td");
-      td.className = "checkcell";
-      td.innerHTML = `<input type="checkbox" data-col="${3+j}" data-row="${i}" data-trait="${escapeHtml(t)}" aria-label="${escapeHtml(t)}" />`;
-      tr.appendChild(td);
-    }
-    tbody.appendChild(tr);
-  }
-  table.appendChild(tbody);
-  area.appendChild(table);
-
-  // Restore snapshot where possible.
-  if (snapshot){
-    const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
-    for (let i=0;i<Math.min(snapshot.length, rows.length);i++){
-      const snap = snapshot[i];
-      rows[i].querySelector('input[data-col="0"]').value = snap.name || "";
-      rows[i].querySelector('select[data-col="1"]').value = normalizeGenderToken(snap.gender) || "";
-      rows[i].querySelector('input[data-col="2"]').value = snap.score || "";
-      for (const cb of Array.from(rows[i].querySelectorAll('input[type="checkbox"][data-trait]'))){
-        const tn = cb.dataset.trait;
-        cb.checked = !!snap.traits?.[tn];
-      }
-    }
-  }
-
-  recomputeGridIds();
-}
-
-function fillGridFromRosterLines(lines){
-  $("inputType").value = "grid";
-  syncInputTypeUI();
-
-  const n = Math.max(40, lines.length);
-  $("gridRows").value = String(Math.min(400, n));
-  buildGrid({preserve:false});
-
-  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
-  for (let i=0;i<Math.min(lines.length, rows.length);i++){
-    const p = parseNameGender(lines[i]);
-    rows[i].querySelector('input[data-col="0"]').value = p.name || "";
-    if (p.gender) rows[i].querySelector('select[data-col="1"]').value = p.gender;
-  }
-  recomputeGridIds();
-}
-
 function syncInputTypeUI(){
   const t = $("inputType")?.value || "single";
   const showByClass = (t === "byClass");
-  const showGrid = (t === "grid");
-  const showRoster = (t === "single");
-
   $("existingCountWrap").style.display = showByClass ? "" : "none";
   $("byClassArea").style.display = showByClass ? "" : "none";
-  $("gridWrap").style.display = showGrid ? "" : "none";
-  $("rosterWrap").style.display = showRoster ? "" : "none";
-
+  $("rosterWrap").style.display = showByClass ? "none" : "block";
   if (showByClass) buildByClassInputs();
-  if (showGrid) buildGrid({preserve:true});
 }
 
-// UI toggle: roster vs existing classes vs grid
 $("inputType").addEventListener("change", syncInputTypeUI);
 $("existingCount").addEventListener("input", ()=>{
   if (($("inputType")?.value || "single") === "byClass") buildByClassInputs();
 });
-$("gridRows").addEventListener("input", ()=>{
-  if (($("inputType")?.value || "single") === "grid") buildGrid({preserve:true});
-});
 syncInputTypeUI();
-
-// Grid tools
-$("btnGridAdd").addEventListener("click", ()=>{
-  const cur = Math.max(1, Math.min(400, parseInt($("gridRows").value || "40", 10)));
-  $("gridRows").value = String(Math.min(400, cur + 10));
-  buildGrid({preserve:true});
-});
-$("btnGridClear").addEventListener("click", ()=>{
-  for (const tr of Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'))){
-    tr.querySelector('input[data-col="0"]').value = "";
-    tr.querySelector('select[data-col="1"]').value = "";
-    tr.querySelector('input[data-col="2"]').value = "";
-    for (const cb of Array.from(tr.querySelectorAll('input[type="checkbox"][data-trait]'))) cb.checked = false;
-  }
-  recomputeGridIds();
-});
-$("btnGridImportRoster").addEventListener("click", ()=>{
-  const lines = splitLines($("roster").value);
-  if (!lines.length) return;
-  fillGridFromRosterLines(lines);
-});
-
-// Excel-like paste (TSV) into grid
-let gridIdRecomputeTimer = null;
-$("gridArea").addEventListener("input", (e)=>{
-  const t = e.target;
-  if (!(t instanceof HTMLElement)) return;
-  if (!t.matches('input[data-col="0"], select[data-col="1"]')) return;
-  if (gridIdRecomputeTimer) clearTimeout(gridIdRecomputeTimer);
-  gridIdRecomputeTimer = setTimeout(recomputeGridIds, 60);
-});
-
-$("gridArea").addEventListener("paste", (e)=>{
-  const target = e.target;
-  if (!(target instanceof HTMLElement)) return;
-  if (!target.matches("input, select")) return;
-  const col = parseInt(target.dataset.col || "0", 10);
-  const row = parseInt(target.dataset.row || "0", 10);
-
-  const text = e.clipboardData?.getData("text/plain");
-  if (!text) return;
-  e.preventDefault();
-
-  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
-  const grid = lines
-    .map(l=>l.split("\t"))
-    .map(cols=>cols.map(c=>c));
-
-  const required = row + grid.length;
-  const curRows = Math.max(1, Math.min(400, parseInt($("gridRows").value || "40", 10)));
-  if (required > curRows){
-    $("gridRows").value = String(Math.min(400, required));
-    buildGrid({preserve:true});
-  }
-
-  const rows = Array.from(document.querySelectorAll('#gridArea tr[data-grid-row]'));
-  const traits = gridTraitNames();
-
-  function setCell(r, c, val){
-    if (!rows[r]) return;
-    const v = cleanLine(val);
-    if (c===0){
-      const p = parseNameGender(v);
-      rows[r].querySelector('input[data-col="0"]').value = p.name || "";
-      const sel = rows[r].querySelector('select[data-col="1"]');
-      if (p.gender && sel && !sel.value) sel.value = p.gender;
-      return;
-    }
-    if (c===1){
-      rows[r].querySelector('select[data-col="1"]').value = normalizeGenderToken(v);
-      return;
-    }
-    if (c===2){
-      rows[r].querySelector('input[data-col="2"]').value = v;
-      return;
-    }
-    const ti = c - 3;
-    if (ti >= 0 && ti < traits.length){
-      const cb = rows[r].querySelector(`input[type="checkbox"][data-trait="${CSS.escape(traits[ti])}"]`);
-      if (cb) cb.checked = truthyToken(v);
-    }
-  }
-
-  for (let r=0;r<grid.length;r++){
-    for (let c=0;c<grid[r].length;c++){
-      setCell(row + r, col + c, grid[r][c]);
-    }
-  }
-  recomputeGridIds();
-});
 
 function hashSeed(str){
   // simple deterministic hash -> int
@@ -1080,7 +957,7 @@ function makeTraitPicker(selectedSet, traitList){
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "smallBtn popBtn";
-  btn.textContent = selectedSet.size ? `특성 ${selectedSet.size}개 선택됨` : "특성 선택";
+  btn.textContent = selectedSet.size ? "특성 선택됨" : "특성 선택";
 
   const panel = document.createElement("div");
   panel.className = "popPanel";
@@ -1098,7 +975,14 @@ function makeTraitPicker(selectedSet, traitList){
       b.textContent = t;
       badgeBox.appendChild(b);
     }
-    btn.textContent = selectedSet.size ? `특성 ${selectedSet.size}개 선택됨` : "특성 선택";
+    if (!selectedSet.size){
+      btn.textContent = "특성 선택";
+      return;
+    }
+    const names = Array.from(selectedSet);
+    const head = names.slice(0, 2).join(", ");
+    const rest = names.length - 2;
+    btn.textContent = rest > 0 ? `${head} 외 ${rest}` : head;
   }
 
   for (const t of traitList){
@@ -1193,12 +1077,19 @@ function buildSheetFromRoster(){
     const tdGender = document.createElement("td");
     const selG = document.createElement("select");
     selG.dataset.sheet = "gender";
+    selG.className = "genderSel";
     selG.innerHTML = `
       <option value="">미상</option>
       <option value="남">남</option>
       <option value="여">여</option>
     `;
     selG.value = keep?.gender || g0;
+    const paintGender = ()=>{
+      selG.classList.toggle("is-m", selG.value === "남");
+      selG.classList.toggle("is-f", selG.value === "여");
+    };
+    selG.addEventListener("change", paintGender);
+    paintGender();
     tdGender.appendChild(selG);
     tr.appendChild(tdGender);
 
@@ -1247,9 +1138,10 @@ $("traitNames").addEventListener("input", ()=>{
 /* ========= Core: parse inputs ========= */
 function readInputs(){
   const k = Math.max(2, Math.min(20, parseInt($("k").value||"4",10)));
-  const seed = cleanLine($("seed").value) || "seed";
-  const priority = document.querySelector('input[name="priority"]:checked')?.value || "score";
-  const sibRule = document.querySelector('input[name="sibRule"]:checked')?.value || "same";
+  // seed: internal only (user input removed)
+  const seed = String(Date.now());
+  const priority = document.querySelector('input[name="priority"]:checked')?.value || "gender";
+  const sibRule = cleanLine($("sibRuleSelect")?.value || "") || "same";
 
   // roster
   let rosterLines = [];
@@ -1655,7 +1547,7 @@ function render(classes, input){
               <th style="width:72px;">성별</th>
               <th style="width:90px;">점수</th>
               <th>특성</th>
-              <th style="width:120px;">형제그룹</th>
+              <th style="width:120px;">쌍둥이그룹</th>
             </tr>
           </thead>
           <tbody>
@@ -1711,17 +1603,17 @@ function escapeHtml(s){
 /* ========= Copy / CSV ========= */
 let last = null;
 
-$("btnCopy").onclick = ()=>{
-  if (!last) return;
-  const {classes, input} = last;
-  let out = [];
-  out.push(`반편성 생성기 결과`);
-  out.push(`K=${input.k}, seed=${input.seed}, 우선순위=${input.priority}, 형제규칙=${input.sibRule}`);
-  out.push("");
-  classes.forEach((cls, idx)=>{
-    out.push(`${idx+1}반`);
-    cls.forEach((s,i)=>{
-      const traits = input.traitNames.filter(t=>s.traits.has(t)).join(",");
+  $("btnCopy").onclick = ()=>{
+    if (!last) return;
+    const {classes, input} = last;
+    let out = [];
+    out.push(`반편성 생성기 결과`);
+    out.push(`K=${input.k}, 우선순위=${input.priority}, 쌍둥이규칙=${input.sibRule}`);
+    out.push("");
+    classes.forEach((cls, idx)=>{
+      out.push(`${idx+1}반`);
+      cls.forEach((s,i)=>{
+        const traits = input.traitNames.filter(t=>s.traits.has(t)).join(",");
       out.push(`${i+1}\t${s.display}\t${s.gender||""}\t${s.score??""}\t${traits}\t${s.sibGroup||""}`);
     });
     out.push("");
@@ -1732,7 +1624,7 @@ $("btnCopy").onclick = ()=>{
 $("btnCSV").onclick = ()=>{
   if (!last) return;
   const {classes, input} = last;
-  const rows = [["반","번호","이름","성별","점수","특성","형제그룹"]];
+  const rows = [["반","번호","이름","성별","점수","특성","쌍둥이그룹"]];
   classes.forEach((cls, idx)=>{
     cls.forEach((s,i)=>{
       const traits = input.traitNames.filter(t=>s.traits.has(t)).join("|");
@@ -1774,12 +1666,11 @@ $("btnGenerate").onclick = ()=>{
       setMsg("생성 완료! 탭에서 반별 결과를 확인하세요.", true);
     }
 
-    // generate multiple restarts and keep best
+    // multiple restarts and keep best (seed is internal/random)
     const tries = 6;
-    let bestClasses=null, bestScore=Infinity;
-
+    let bestClasses = null, bestScore = Infinity;
     for (let t=0;t<tries;t++){
-      const seed2 = input.seed + "-" + (t+1);
+      const seed2 = String(Date.now()) + "-" + Math.floor(Math.random()*1e9) + "-" + t;
       const c = generateAssignment({...input, seed: seed2});
       const sc = evaluate(c, {...input, seed: seed2});
       if (sc < bestScore){
@@ -1801,11 +1692,12 @@ $("btnGenerate").onclick = ()=>{
 
 $("btnReset").onclick = ()=>{
   ["roster","boys","girls","scores","avoidPairs","siblings"].forEach(id=>$(id).value="");
-  $("inputType").value = "single";
+  $("inputType").value = "byClass";
   $("existingCount").value = "3";
   $("byClassArea").innerHTML = "";
   syncInputTypeUI();
   $("traitNames").value="ADHD,기초학력,특수교육대상,상자,교우관계,사춘기";
+  $("sibRuleSelect").value = "same";
   $("sheetBody").innerHTML = `<tr><td colspan="6" style="color:var(--muted);">명렬표를 입력한 뒤 “표 생성/새로고침”을 눌러주세요.</td></tr>`;
   setMsg("");
   last=null;
@@ -1817,7 +1709,6 @@ $("btnExample").onclick = ()=>{
   $("inputType").value = "single";
   syncInputTypeUI();
   $("k").value = 4;
-  $("seed").value = "2026-1";
   $("roster").value = `김하나(여)
 홍길동(남)
 박민수(남)
