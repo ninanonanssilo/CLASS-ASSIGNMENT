@@ -1535,6 +1535,9 @@ function readInputs(){
     students.find(s=>s.id===bId)?.avoid.add(aId);
   }
 
+  const twinPairs = []; // for display (both same/diff)
+  let twinPairIdx = 1;
+
   for (const r of twinRows){
     const rawA = cleanLine(r.dataset.twinA || "");
     const rawB = cleanLine(r.dataset.twinB || "");
@@ -1547,9 +1550,15 @@ function readInputs(){
     const diff = !!r.querySelector('input[data-twin-rule="diff"]')?.checked;
     if (!same && !diff) continue;
 
+    const pairName = `쌍둥이${twinPairIdx++}` + (diff ? "(분반)" : "");
+
     for (const x of ida){
       for (const y of idb){
         if (x === y) continue;
+
+        // store for result display
+        twinPairs.push({name: pairName, a: x, b: y, rule: diff ? "diff" : "same"});
+
         if (same){
           parent.set(x, parent.get(x) ?? x);
           parent.set(y, parent.get(y) ?? y);
@@ -1604,7 +1613,7 @@ function readInputs(){
     );
   }
 
-  return {k, seed, mode, grade, priority, priorityOrder, students, traitNames, sibGroups};
+  return {k, seed, mode, grade, priority, priorityOrder, students, traitNames, sibGroups, twinPairs};
 }
 
 /* ========= Scoring / penalty ========= */
@@ -1871,6 +1880,20 @@ function render(classes, input){
 
   const traitNames = input.traitNames;
 
+  // twin label map (including 분반 pairs) for easier verification in results
+  const twinLabelById = new Map();
+  for (const p of (input.twinPairs || [])){
+    for (const sid of [p.a, p.b]){
+      if (!twinLabelById.has(sid)) twinLabelById.set(sid, []);
+      twinLabelById.get(sid).push(p.name);
+    }
+  }
+  const twinLabelOf = (s)=>{
+    const labels = twinLabelById.get(s.id) || [];
+    if (s.sibGroup && !labels.includes(s.sibGroup)) labels.unshift(s.sibGroup);
+    return labels.join(", ");
+  };
+
   const basis = ( $("resultBasis")?.value || "promote" );
   const gradeNum = parseInt(String(input.grade||""), 10);
   const prevGrade = Number.isFinite(gradeNum) && gradeNum > 1 ? String(gradeNum - 1) : "";
@@ -1912,7 +1935,7 @@ function render(classes, input){
               <th style="width:72px;">성별</th>
               <th style="width:90px;">점수</th>
               <th>특성</th>
-              <th style="width:120px;">쌍둥이그룹</th>
+              <th style="width:140px;">쌍둥이</th>
             </tr>
           </thead>
           <tbody>
@@ -1950,7 +1973,7 @@ function render(classes, input){
                   <td>${s.gender||""}</td>
                   <td>${s.score ?? ""}</td>
                   <td>${escapeHtml(tr)}</td>
-                  <td>${escapeHtml(s.sibGroup||"")}</td>
+                  <td>${escapeHtml(twinLabelOf(s) || "")}</td>
                 </tr>`;
             }).join("")}
           </tbody>
@@ -2065,7 +2088,8 @@ $("btnCopy").onclick = ()=>{
     ordered.forEach((s,i)=>{
       const no = noMap.get(s.id) || String(i+1);
       const traits = input.traitNames.filter(t=>s.traits.has(t)).join(",");
-      out.push(`${no}\t${s.display}\t${s.gender||""}\t${s.score??""}\t${traits}\t${s.sibGroup||""}`);
+      const twinLabel = (last?.input?.twinPairs || []).filter(p=>p.a===s.id||p.b===s.id).map(p=>p.name).join(", ") || (s.sibGroup||"");
+      out.push(`${no}\t${s.display}\t${s.gender||""}\t${s.score??""}\t${traits}\t${twinLabel}`);
     });
     out.push("");
   });
@@ -2089,7 +2113,7 @@ $("btnCSV").onclick = ()=>{
     "성별",
     "점수",
     "특성",
-    "쌍둥이그룹",
+    "쌍둥이",
   ]];
   const settings = getNumberingSettings();
   classes.forEach((cls, idx)=>{
@@ -2101,6 +2125,7 @@ $("btnCSV").onclick = ()=>{
       const g = input.grade || "";
       const gcn = `${gradePrefix}${newClass}-${newNo}`;
       const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
+      const twinLabel = ((input.twinPairs||[]).filter(p=>p.a===s.id||p.b===s.id).map(p=>p.name).join(", ") || (s.sibGroup||""));
       rows.push([
         input.grade ? "진급반 기준" : "현재반 기준",
         s.prevClass ?? "",
@@ -2114,7 +2139,7 @@ $("btnCSV").onclick = ()=>{
         s.gender||"",
         s.score??"",
         traits,
-        s.sibGroup||"",
+        twinLabel,
       ]);
     });
   });
@@ -2146,7 +2171,7 @@ $("btnSheets").onclick = async ()=>{
     "성별",
     "점수",
     "특성",
-    "쌍둥이그룹",
+    "쌍둥이",
   ]];
 
   const settings = getNumberingSettings();
@@ -2159,6 +2184,7 @@ $("btnSheets").onclick = async ()=>{
       const g = input.grade || "";
       const gcn = `${gradePrefix}${newClass}-${newNo}`;
       const prev = (s.prevClass != null && s.prevNo != null) ? `${s.prevClass}-${s.prevNo}` : "";
+      const twinLabel = ((input.twinPairs||[]).filter(p=>p.a===s.id||p.b===s.id).map(p=>p.name).join(", ") || (s.sibGroup||""));
       rows.push([
         input.grade ? "진급반 기준" : "현재반 기준",
         s.prevClass ?? "",
@@ -2172,7 +2198,7 @@ $("btnSheets").onclick = async ()=>{
         s.gender||"",
         s.score??"",
         traits,
-        s.sibGroup||"",
+        twinLabel,
       ]);
     });
   });
