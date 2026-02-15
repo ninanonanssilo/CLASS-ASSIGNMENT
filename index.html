@@ -1713,6 +1713,10 @@ function generateAssignment(input){
       const ib = Math.floor(rand()*classes[b].length);
       const sa = classes[a][ia], sb = classes[b][ib];
 
+      // Do not break same-class sibling/twin constraints during improvement.
+      // (We treat sibGroup members as an inseparable unit.)
+      if (sa?.sibGroup || sb?.sibGroup) continue;
+
       const newA = classes[a].slice(); newA[ia]=sb;
       const newB = classes[b].slice(); newB[ib]=sa;
 
