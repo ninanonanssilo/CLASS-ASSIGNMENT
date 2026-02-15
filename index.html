@@ -1827,18 +1827,33 @@ function render(classes, input){
             ${cls.map((s,i)=>{
               const tr = traitNames.filter(t=>s.traits.has(t)).join(", ");
 
-              const promoteKey = `${promoteGrade ? promoteGrade + "-" : ""}${idx+1}-${i+1}`;
+              const promoteKey = {
+                grade: promoteGrade,
+                cls: String(idx+1),
+                no: String(i+1),
+              };
               const prevKey = (s.prevClass!=null && s.prevNo!=null)
-                ? `${prevGrade ? prevGrade + "-" : ""}${s.prevClass}-${s.prevNo}`
-                : "";
+                ? {
+                    grade: prevGrade,
+                    cls: String(s.prevClass),
+                    no: String(s.prevNo),
+                  }
+                : null;
+
+              const keyHtml = (k)=>{
+                if (!k) return "";
+                const g = k.grade ? escapeHtml(k.grade) + "-" : "";
+                // show class-no on separate lines for easy scanning/alignment
+                return `${g}${escapeHtml(k.cls)}<br>${escapeHtml(k.no)}`;
+              };
 
               const left = (basis==="prev") ? prevKey : promoteKey;
               const right = (basis==="prev") ? promoteKey : prevKey;
 
               return `
                 <tr>
-                  <td>${escapeHtml(left)}</td>
-                  <td style="color:var(--muted);">${escapeHtml(right)}</td>
+                  <td class="mono">${keyHtml(left)}</td>
+                  <td class="mono" style="color:var(--muted);">${keyHtml(right)}</td>
                   <td>${escapeHtml(s.display)}</td>
                   <td>${s.gender||""}</td>
                   <td>${s.score ?? ""}</td>
