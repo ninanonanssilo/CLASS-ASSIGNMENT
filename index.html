@@ -793,7 +793,12 @@
 김하나
 박민수
 이영희"></textarea>
-          <div class="hint">팁) 동명이인이 있으면 자동으로 <span class="mono">(2)</span>, <span class="mono">(3)</span>처럼 번호를 붙여 구분합니다.</div>
+          <div class="hint">팁) 동명이인은 자동 구분됩니다. 기존 반 정보가 있으면 <span class="mono">1반 김하나</span>처럼 반을 붙이고, 없으면 <span class="mono">김하나(2)</span> 형식으로 구분합니다.</div>
+          <div class="btns" style="margin-top:8px;">
+            <button type="button" class="smallBtn" id="btnTemplate">명렬표 양식 다운로드</button>
+            <button type="button" class="smallBtn" id="btnImportRoster">명렬표 파일 업로드</button>
+            <input id="rosterFile" type="file" accept=".csv,.tsv,.txt" style="display:none;" />
+          </div>
         </div>
 
         <div class="row">
@@ -868,7 +873,7 @@
 	            <label>쌍둥이 (선택, 한 줄에 1쌍: “이름1 - 이름2”)</label>
 	            <textarea id="siblings" placeholder="예:
 홍길동 - 홍길순
-김하나 - 김하나(2)"></textarea>
+1반 김하나 - 3반 김하나"></textarea>
               <div class="hint" style="margin-top:8px;">아래에서 각 쌍마다 <b>합반(같은 반)</b>/<b>분반(다른 반)</b>을 체크로 지정할 수 있습니다.</div>
 	          </div>
             <div class="field">
@@ -1107,17 +1112,34 @@ function parseNameGender(raw){
 
   return {name:s, gender:null};
 }
-function disambiguateNames(names){
-  // same name -> 이름(2), 이름(3)... (avoid confusing a/b suffix; easier to match/communicate)
-  const count = {};
-  const out = [];
+function disambiguateNames(names, meta = []){
+  // same name -> prefer "1반 홍길동" (when prev class exists), else "홍길동(2)"
+  const total = {};
   for (const n of names){
     const base = cleanLine(n);
-    count[base] = (count[base]||0)+1;
-    if (count[base]===1){ out.push(base); }
-    else{
-      out.push(`${base}(${count[base]})`);
+    total[base] = (total[base] || 0) + 1;
+  }
+
+  const seen = {};
+  const used = {};
+  const out = [];
+
+  for (let i=0;i<names.length;i++){
+    const base = cleanLine(names[i]);
+    seen[base] = (seen[base] || 0) + 1;
+
+    let candidate = base;
+    if ((total[base] || 0) > 1){
+      const cls = meta[i]?.prevClass;
+      if (cls) candidate = `${cls}반 ${base}`;
+      else candidate = `${base}(${seen[base]})`;
     }
+
+    used[candidate] = (used[candidate] || 0) + 1;
+    if (used[candidate] > 1){
+      candidate = `${candidate}(${used[candidate]})`;
+    }
+    out.push(candidate);
   }
   return out;
 }
@@ -1136,8 +1158,9 @@ function resolveToIds(name, nameMap){
   if (nameMap.__idSet && nameMap.__idSet.has(name)) return [name];
   if (nameMap.has(name) && nameMap.get(name).length===1) return [nameMap.get(name)[0]];
 
-  // try normalize "홍길동(2)" -> "홍길동"
-  const base1 = name.replace(/\(\d+\)\s*$/,'');
+  // normalize "1반 홍길동" / "홍길동(2)" -> "홍길동"
+  const base0 = cleanLine(name).replace(/^\d+\s*반\s+/, '');
+  const base1 = base0.replace(/\(\d+\)\s*$/,'');
   if (nameMap.has(base1) && nameMap.get(base1).length===1) return [nameMap.get(base1)[0]];
 
   // legacy: strip trailing a/b/c (동명이인)
@@ -1152,6 +1175,79 @@ function downloadText(filename, text, mime){
   a.download = filename;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+function parseDelimitedLine(line, delimiter){
+  const out = [];
+  let cur = "";
+  let inQuote = false;
+  for (let i=0;i<line.length;i++){
+    const ch = line[i];
+    if (ch === '"'){
+      if (inQuote && line[i+1] === '"') { cur += '"'; i++; continue; }
+      inQuote = !inQuote;
+      continue;
+    }
+    if (ch === delimiter && !inQuote){ out.push(cur); cur = ""; continue; }
+    cur += ch;
+  }
+  out.push(cur);
+  return out.map(v=>cleanLine(v));
+}
+
+function detectDelimiter(text){
+  const lines = text.split(/\r?\n/).filter(x=>cleanLine(x));
+  if (!lines.length) return ",";
+  const probe = lines.slice(0, 5).join("\n");
+  const tabs = (probe.match(/\t/g) || []).length;
+  const commas = (probe.match(/,/g) || []).length;
+  return tabs > commas ? "\t" : ",";
+}
+
+function parseRosterFileText(text){
+  const delimiter = detectDelimiter(text);
+  const rawLines = text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if (!rawLines.length) return [];
+  const rows = rawLines.map(line=>parseDelimitedLine(line, delimiter));
+
+  const header = rows[0].map(h=>cleanLine(h).toLowerCase());
+  const headerMap = {
+    class: ["반", "기존반", "이전반", "class", "prevclass"],
+    no: ["번호", "기존번호", "no", "num"],
+    name: ["이름", "학생", "name"],
+    gender: ["성별", "gender", "sex"],
+    score: ["점수", "등수", "score", "rank"],
+    traits: ["특성", "trait", "traits"],
+    sib: ["쌍둥이그룹", "형제그룹", "sibgroup", "group"]
+  };
+  const idx = {};
+  for (const [key, candidates] of Object.entries(headerMap)){
+    idx[key] = header.findIndex(h=>candidates.includes(h));
+  }
+
+  const hasHeader = idx.name >= 0;
+  const body = hasHeader ? rows.slice(1) : rows;
+
+  return body
+    .map(cols=>{
+      const get = (k, fallback)=>{
+        const p = idx[k];
+        if (p >= 0) return cleanLine(cols[p] || "");
+        return cleanLine(cols[fallback] || "");
+      };
+      const name = get("name", 0);
+      if (!name) return null;
+      return {
+        prevClass: parseInt(get("class", 1), 10) || null,
+        prevNo: parseInt(get("no", 2), 10) || null,
+        name,
+        gender: get("gender", 3),
+        score: get("score", 4),
+        traits: get("traits", 5),
+        sib: get("sib", 6)
+      };
+    })
+    .filter(Boolean);
 }
 
 /* ========= UI: student sheet (trait dropdown) ========= */
@@ -1245,12 +1341,12 @@ function sheetSnapshot(){
 
 function buildSheetFromRoster(){
   const inputType = $("inputType") ? $("inputType").value : "single";
-  let rosterLines = [];
-  if (inputType === "byClass") rosterLines = readExistingClassRosterEntries().map(e=>e.raw);
-  else rosterLines = splitLines($("roster").value);
+  let rosterEntries = [];
+  if (inputType === "byClass") rosterEntries = readExistingClassRosterEntries();
+  else rosterEntries = splitLines($("roster").value).map((raw)=>({raw, prevClass:null}));
 
   const tbody = $("sheetBody");
-  if (!rosterLines.length){
+  if (!rosterEntries.length){
     tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);">명렬표가 비어있어요.</td></tr>`;
     return;
   }
@@ -1258,9 +1354,9 @@ function buildSheetFromRoster(){
   const prev = sheetSnapshot();
 
   // parse + disambiguate
-  const parsed = rosterLines.map(parseNameGender);
+  const parsed = rosterEntries.map(e=>parseNameGender(e.raw));
   const baseNames = parsed.map(x=>x.name);
-  const ids = disambiguateNames(baseNames);
+  const ids = disambiguateNames(baseNames, rosterEntries);
   const traitList = getTraitList();
 
   const boys = new Set(splitLines($("boys")?.value || ""));
@@ -1453,7 +1549,7 @@ function readInputs(){
   // parse roster with optional gender
   const parsed = rosterEntries.map(e=>parseNameGender(e.raw));
   const baseNames = parsed.map(x=>x.name);
-  const ids = disambiguateNames(baseNames);
+  const ids = disambiguateNames(baseNames, rosterEntries);
 
   const students = ids.map((id, i)=>({
     id,
@@ -2359,6 +2455,135 @@ $("btnFontReset")?.addEventListener("click", ()=>applyFontScale(1));
 syncResultControls();
 loadFontScale();
 
+$("btnTemplate")?.addEventListener("click", ()=>{
+  const sample = [
+    ["반","번호","이름","성별","점수","특성","쌍둥이그룹"],
+    ["1","1","김하나","여","92","기초학력,교우관계",""],
+    ["1","2","박민수","남","81","ADHD","A"],
+    ["3","5","김하나","여","88","","A"]
+  ];
+  const csv = sample.map(r=>r.join(",")).join("\n");
+  downloadText("명렬표_양식.csv", "\ufeff" + csv, "text/csv;charset=utf-8");
+  setMsg("양식 파일을 다운로드했습니다. 작성 후 '명렬표 파일 업로드'로 불러오세요.", true);
+});
+
+$("btnImportRoster")?.addEventListener("click", ()=>$("rosterFile")?.click());
+$("rosterFile")?.addEventListener("change", async (e)=>{
+  const file = e.target?.files?.[0];
+  if (!file) return;
+  try{
+    const text = await file.text();
+    const rows = parseRosterFileText(text);
+    if (!rows.length) throw new Error("비어 있는 파일이거나 이름 열을 찾을 수 없습니다.");
+
+    const classRows = rows.filter(r=>r.prevClass);
+    const hasClass = classRows.length > 0;
+
+    if (hasClass){
+      const maxClass = Math.max(...classRows.map(r=>r.prevClass));
+      $("inputType").value = "byClass";
+      $("existingCount").value = String(Math.max(1, maxClass));
+      syncInputTypeUI();
+
+      const map = new Map();
+      for (const r of classRows){
+        const key = String(r.prevClass);
+        const line = r.gender ? `${r.name}(${r.gender})` : r.name;
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(line);
+      }
+      const tas = Array.from(document.querySelectorAll('#byClassArea textarea[data-existing-class]'));
+      for (const ta of tas){
+        ta.value = (map.get(ta.dataset.existingClass) || []).join("\n");
+      }
+    } else {
+      $("inputType").value = "single";
+      syncInputTypeUI();
+      $("roster").value = rows.map(r=>r.gender ? `${r.name}(${r.gender})` : r.name).join("\n");
+    }
+
+    const boys = rows.filter(r=>r.gender === "남").map(r=>r.name);
+    const girls = rows.filter(r=>r.gender === "여").map(r=>r.name);
+    if (boys.length) $("boys").value = boys.join("\n");
+    if (girls.length) $("girls").value = girls.join("\n");
+
+    const scoreLines = rows
+      .filter(r=>r.score !== "" && !Number.isNaN(Number(r.score)))
+      .map(r=>`${r.name} ${r.score}`);
+    if (scoreLines.length) $("scores").value = scoreLines.join("\n");
+
+    buildSheetFromRoster();
+
+    const sheetRows = Array.from(document.querySelectorAll("#sheetBody tr[data-student-id]"));
+    const rowByBase = new Map();
+    for (const sr of sheetRows){
+      const id = sr.dataset.studentId || "";
+      const base = id.replace(/^\d+\s*반\s+/, "").replace(/\(\d+\)\s*$/, "").trim();
+      if (!rowByBase.has(base)) rowByBase.set(base, []);
+      rowByBase.get(base).push(sr);
+    }
+
+    const traitSet = new Set(getTraitList());
+    for (const r of rows){
+      const targets = rowByBase.get(r.name) || [];
+      const target = (r.prevClass && targets.length)
+        ? (targets.find(x=>(x.dataset.studentId || "").startsWith(`${r.prevClass}반 `)) || targets[0])
+        : targets.shift();
+      if (!target) continue;
+
+      if (r.score !== ""){
+        const scoreInp = target.querySelector('input[data-sheet="score"]');
+        if (scoreInp) scoreInp.value = r.score;
+      }
+      if (r.sib){
+        const sibInp = target.querySelector('input[data-sheet="sib"]');
+        if (sibInp) sibInp.value = r.sib;
+      }
+      if (r.traits){
+        const wants = r.traits.split(/[|,;/]/).map(cleanLine).filter(Boolean);
+        for (const t of wants) traitSet.add(t);
+      }
+    }
+
+    $("traitNames").value = Array.from(traitSet).join(",");
+    buildSheetFromRoster();
+
+    const afterRows = Array.from(document.querySelectorAll("#sheetBody tr[data-student-id]"));
+    for (const r of rows){
+      const target = afterRows.find(x=>{
+        const id = x.dataset.studentId || "";
+        const base = id.replace(/^\d+\s*반\s+/, "").replace(/\(\d+\)\s*$/, "").trim();
+        if (base !== r.name) return false;
+        if (!r.prevClass) return true;
+        return id.startsWith(`${r.prevClass}반 `);
+      });
+      if (!target) continue;
+
+      if (r.traits){
+        const wants = new Set(r.traits.split(/[|,;/]/).map(cleanLine).filter(Boolean));
+        const checks = Array.from(target.querySelectorAll('input[type="checkbox"][data-sheet-trait]'));
+        for (const cb of checks){
+          cb.checked = wants.has(cb.dataset.sheetTrait || "");
+        }
+      }
+      if (r.score !== ""){
+        const scoreInp = target.querySelector('input[data-sheet="score"]');
+        if (scoreInp) scoreInp.value = r.score;
+      }
+      if (r.sib){
+        const sibInp = target.querySelector('input[data-sheet="sib"]');
+        if (sibInp) sibInp.value = r.sib;
+      }
+    }
+
+    setMsg(`파일 업로드 완료! ${rows.length}명 데이터를 불러왔습니다. 필요하면 표에서 성별/특성을 바로 수정하세요.`, true);
+  } catch(err){
+    setMsg(`파일 업로드 실패: ${err.message || err}`, false);
+  } finally {
+    e.target.value = "";
+  }
+});
+
 $("btnReset").onclick = ()=>{
   ["roster","boys","girls","scores","avoidPairs","siblings"].forEach(id=>$(id).value="");
   $("inputType").value = "byClass";
@@ -2420,7 +2645,7 @@ $("btnExample").onclick = ()=>{
 김하나 - 이영희`;
 
   $("siblings").value = `유서연 - 서하린
-김하나 - 김하나(2)`;
+1반 김하나 - 3반 김하나`;
 
 	  // Example gender lists (optional input method) - must be set before building the sheet.
 	  $("boys").value = `홍길동
